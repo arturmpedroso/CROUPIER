@@ -4,9 +4,14 @@ Muda para uma nova branch -b nome-da-branch
 ###git branch -f main HEAD~3
 
 ###Move (à força) a branch main 3 ancestrais acima do HEAD
+###git revert (remote)
+### git reset (local)
+###git commit -m "Adiciona nova funcionalidade"
+### git rebase 
+Muda os itens de posição
 
-git commit -m "Adiciona nova funcionalidade"
+### git rebase -i nome_commit
+reorganiza os commit em uma nova ordem
+
 Faz um commit na branch local
 
-###git add .
-adiciona arquivos no commit

@@ -2,6 +2,7 @@
 
 ## About
 This is a FlashCard system.
+Site para estudar através de flashcards (inspirado no anki). Será possível criar flashscards, agrupar em baralhos e coloca-los em grupos para compartilhar suas anotações de estudo.
 
 ## Team
 > Artur Myskiw Pedroso <br>
