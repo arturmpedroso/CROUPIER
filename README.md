@@ -8,7 +8,7 @@ Site para estudar através de flashcards (inspirado no anki). Será possível cr
 > Artur Myskiw Pedroso <br>
 > Eduado Marques Carvalho <br>
 > Diogo Kovalek Almeida <br>
-> Pedro Gabrielr Figueiroa de Sousa <br>
+> Pedro Gabriel Figueiroa de Sousa <br>
 
 ## Stack
 ### IDE
