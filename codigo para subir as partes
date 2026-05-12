@@ -1,0 +1,10 @@
+#frontend
+npm run dev
+http://localhost:5173/
+
+#backend
+http://localhost:3000/
+npm run start:dev
+
+#cards
+http://localhost:3000/cards
