@@ -1,24 +1,13 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
-
-import { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Home from './Home';
+import Cards from './Cards';
 
 function App() {
-
-  useEffect(() => {
-    fetch('http://localhost:3000/cards')
-      .then(res => res.json())
-      .then(data => console.log(data))
-      .catch(err => console.error(err));
-  }, []);
-
   return (
-    <div>
-      <h1>Meu App</h1>
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/cards" element={<Cards />} />
+    </Routes>
   );
 }
 
