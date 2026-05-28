@@ -1,26 +1,64 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  // Injetamos o PrismaService de forma limpa no construtor
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createUserDto: CreateUserDto) {
+    const { name, email, password } = createUserDto;
+
+    // 1. Verifica se o e-mail já está cadastrado no banco
+    const userExists = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (userExists) {
+      throw new ConflictException('Este e-mail já está em uso.');
+    }
+
+    // 2. Cria o usuário diretamente no MySQL usando o Prisma 6
+    // (Lembrete: Mais para frente podemos adicionar a criptografia da senha aqui)
+    return await this.prisma.user.create({
+      data: {
+        name,
+        email,
+        password, 
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.prisma.user.findMany({
+      select: { id: true, name: true, email: true },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    return await this.prisma.user.findUnique({
+      where: { id },
+    });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    return await this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    return await this.prisma.user.delete({
+      where: { id },
+    });
   }
 }
