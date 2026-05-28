@@ -43,20 +43,20 @@ export class UsersService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     return await this.prisma.user.findUnique({
       where: { id },
     });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     return await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
     });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     return await this.prisma.user.delete({
       where: { id },
     });
