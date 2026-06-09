@@ -11,7 +11,6 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const { name, email, password } = createUserDto;
 
-    // 1. Verifica se o e-mail já está cadastrado no banco
     const userExists = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -20,8 +19,7 @@ export class UsersService {
       throw new ConflictException('Este e-mail já está em uso.');
     }
 
-    // 2. Cria o usuário diretamente no MySQL usando o Prisma 6
-    // (Lembrete: Mais para frente podemos adicionar a criptografia da senha aqui)
+
     return await this.prisma.user.create({
       data: {
         name,

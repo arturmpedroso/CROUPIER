@@ -1,10 +1,13 @@
-#frontend
+# frontend
 npm run dev
-http://localhost:5173/
+http://localhost:300/home
 
-#backend
-http://localhost:3000/
+# backend
+http://localhost:4000/
 npm run start:dev
 
-#cards
+# cards
 http://localhost:3000/cards
+
+# criar o banco
+npx prisma migrate dev --name init
