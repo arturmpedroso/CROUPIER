@@ -63,7 +63,7 @@ export default function RegisterForm() {
       <div className="table-pocket pocket-bottom-right"></div>
 
       <h2 className="croupier-display-title">Criar conta</h2>
-      <p>Faça o do conhecimento a sua aposta!</p>
+      <p>Faça do conhecimento a sua aposta!</p>
       <p>Não há truques nessa proposta...</p>
 
       <form onSubmit={handleSubmit} className="space-y-1">
