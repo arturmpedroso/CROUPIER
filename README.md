@@ -1,3 +1,5 @@
+<img width="424" height="494" alt="image" src="https://github.com/user-attachments/assets/def24c7d-f3ff-4e72-b281-3790888ce6b4" />
+
 # Engenharia de Software
 
 ## About
