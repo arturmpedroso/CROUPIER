@@ -1,5 +1,26 @@
 @import "tailwindcss";
 @layer components {
+  /*
+  .croupier-container{}
+  */
+  .croupier-title{
+    font-size: 3rem;
+    font-weight: bold;
+    color: #A21C0A;
+    text-align: left;
+    padding-bottom: 2rem;
+  }
+  .croupier-subtitle{
+    font-size: 2rem;
+    font-weight: 500;
+    color: #A9BBBD;
+    text-align: left;
+  }
+  .croupier-text{
+    font-size: 1.2rem;
+    color: #E6FAFC;
+    text-align: left;
+  }
   /* Fundo principal do site (Escuro/Mesa) */
   .croupier-body {
     background-color: #1c1e1a;
