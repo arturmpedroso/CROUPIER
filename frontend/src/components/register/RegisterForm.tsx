@@ -4,15 +4,13 @@ import { useState } from 'react';
 
 export default function RegisterForm() {
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
-    type: null,
-    message: '',
-  });
+  const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +27,7 @@ export default function RegisterForm() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, username, email, password }),
       });
 
       const data = await response.json();
@@ -40,6 +38,7 @@ export default function RegisterForm() {
 
       setStatus({ type: 'success', message: `Conta criada com sucesso para ${data.name}!` });
       setName('');
+      setUsername('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
@@ -50,11 +49,8 @@ export default function RegisterForm() {
     }
   };
 
-
-
   return (
     <div className="croupier-game-table">
-      {/* 6 Caçapas da Mesa*/}
       <div className="table-pocket pocket-top-left"></div>
       <div className="table-pocket pocket-top-right"></div>
       <div className="table-pocket pocket-middle-left"></div>
@@ -63,8 +59,6 @@ export default function RegisterForm() {
       <div className="table-pocket pocket-bottom-right"></div>
 
       <h2 className="croupier-display-title">Criar conta</h2>
-      <p>Faça o do conhecimento a sua aposta!</p>
-      <p>Não há truques nessa proposta...</p>
 
       <form onSubmit={handleSubmit} className="space-y-1">
         <div>
@@ -77,6 +71,19 @@ export default function RegisterForm() {
             disabled={loading}
             className="croupier-table-input"
             placeholder="Fulano de Tal"
+          />
+        </div>
+
+        <div>
+          <label className="croupier-field-label">Nickname (URL)</label>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+            required
+            disabled={loading}
+            className="croupier-table-input"
+            placeholder="artursilva"
           />
         </div>
 
