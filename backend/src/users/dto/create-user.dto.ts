@@ -7,6 +7,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'O e-mail é obrigatório.' })
   @IsEmail({}, { message: 'Por favor, insira um e-mail válido.' })
   email!: string;
+  @IsString()
+  @IsNotEmpty({ message: 'O username é obrigatório.' })
+  username!: string;
 
   @IsNotEmpty({ message: 'A senha é obrigatória.' })
   @MinLength(8, { message: 'A senha deve conter no mínimo 8 caracteres.' })
