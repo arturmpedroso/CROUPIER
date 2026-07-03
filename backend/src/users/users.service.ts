@@ -1,37 +1,37 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const { name, email, password } = createUserDto;
-
-    const userExists = await this.prisma.user.findUnique({
-      where: { email },
+  async create(data: any) {
+    const userExists = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ email: data.email }, { username: data.username }],
+      },
     });
 
     if (userExists) {
-      throw new ConflictException('Este e-mail já está em uso.');
+      throw new BadRequestException('E-mail ou Username já estão em uso no jogo.');
     }
 
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    return await this.prisma.user.create({
+    const newUser = await this.prisma.user.create({
       data: {
-        name,
-        email,
-        password, 
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
+        name: data.name,
+        username: data.username,
+        email: data.email,
+        password: hashedPassword,
       },
     });
+
+    const { password, ...userWithoutPassword } = newUser;
+    return userWithoutPassword;
   }
 
   async findAll() {
