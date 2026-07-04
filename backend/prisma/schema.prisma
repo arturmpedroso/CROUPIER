@@ -11,12 +11,57 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
-
+// Usuário
 model User {
-  id        String   @id @default(uuid()) 
+  id         Int          @id @default(autoincrement())
+  name       String
+  username   String       @unique
+  email      String       @unique
+  password   String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  
+  ownedGroups Group[]     @relation("GroupOwner") // Grupos que este usuário criou
+  sharedGroups GroupShare[] // Grupos que compartilharam com ele
+}
+
+// Tabela de Grupos
+model Group {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String?
+  isPrivate   Boolean      @default(false)
+  ownerId     Int
+  createdAt   DateTime     @default(now())
+  
+  // Relações
+  owner       User         @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  shares      GroupShare[] // Um grupo pode ser compartilhado com varios
+  decks       Deck[]       // Um grupo pode conter vários baralhos
+}
+
+// Tabela Intermediária N:N (CompartilharGrupo)
+model GroupShare {
+  id        Int      @id @default(autoincrement())
+  groupId   Int
+  userId    Int      // ID do Acessador
+  canEdit   Boolean  @default(false) // se pode editar os flashcards
+  createdAt DateTime @default(now())
+
+  // Relações
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId]) // Previnir duplicidade de compartilhamento para o mesmo usuário
+}
+
+// Baralhos (Decks) 
+model Deck {
+  id        Int      @id @default(autoincrement())
   name      String
-  username  String   @unique
-  email     String   @unique             
-  password  String                       
-  createdAt DateTime @default(now())    
+  groupId   Int
+  createdAt DateTime @default(now())
+
+  // Relação
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 }
