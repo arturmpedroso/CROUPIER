@@ -243,6 +243,8 @@ export default function GroupePage() {
                                             title={grupo.name}
                                             description={grupo.description || "Sem descrição"}
                                             onSelectGroup={selectElement}
+                                            onEdit={() => handleOpenEditModal(grupo)}
+                                            onDelete={() => handleDeleteGroup(grupo.id)}
                                         />
                                         <div className="mt-3 flex gap-2 justify-end">
                                             <button
