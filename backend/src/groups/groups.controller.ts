@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Request, UseGuards, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, Request, UseGuards, Param, ParseIntPipe } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { AuthGuard } from '../auth/auth.guard';
 
@@ -60,5 +60,44 @@ export class GroupsController {
     @Body() body: { targetUsername: string; canEdit: boolean }
   ) {
     return this.groupsService.shareGroup(req.user.sub, groupId, body.targetUsername, body.canEdit);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Atualiza as informações de uma mesa/grupo existente' })
+  @ApiParam({ name: 'id', description: 'ID numérico do grupo que será editado', example: 1 })
+  @ApiResponse({ status: 200, description: 'Grupo atualizado com sucesso.' })
+  @ApiResponse({ status: 403, description: 'Proibido. Apenas o dono do grupo pode editá-lo.' })
+  @ApiResponse({ status: 404, description: 'Grupo não encontrado.' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'Anatomia Humana - Semestre 2', description: 'Novo nome do grupo' },
+        description: { type: 'string', example: 'Focado agora em neuroanatomia', description: 'Nova descrição' },
+        isPrivate: { type: 'boolean', example: true, description: 'Atualização de privacidade' }
+      }
+    }
+  })
+  async update(
+    @Request() req: any,
+    @Param('id', ParseIntPipe) groupId: number,
+    @Body() body: { name?: string; description?: string; isPrivate?: boolean }
+  ) {
+    // IMPORTANTE: Passe o ID do usuário para o service garantir que ele é o dono do grupo!
+    return this.groupsService.update(req.user.sub, groupId, body);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Recolhe as apostas: deleta um grupo e todos os seus baralhos' })
+  @ApiParam({ name: 'id', description: 'ID numérico do grupo que será deletado', example: 1 })
+  @ApiResponse({ status: 200, description: 'Grupo deletado com sucesso.' })
+  @ApiResponse({ status: 403, description: 'Proibido. Apenas o dono pode deletar o grupo.' })
+  @ApiResponse({ status: 404, description: 'Grupo não encontrado.' })
+  async remove(
+    @Request() req: any,
+    @Param('id', ParseIntPipe) groupId: number
+  ) {
+    // IMPORTANTE: Passe o ID do usuário para validação de posse no service
+    return this.groupsService.delete(req.user.sub, groupId);
   }
 }
