@@ -40,7 +40,6 @@ export default function GroupePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentShareCode, setCurrentShareCode] = useState(''); // Armazena o código do grupo clicado
 
-
     // Busca os grupos do usuário
     const fetchGroups = async () => {
         setIsLoading(true);
@@ -219,13 +218,14 @@ export default function GroupePage() {
     return (
         <div className="flex relative">
             <Sidebar elements={sidebarElements} activeId={activeId} onFindElement={findElement} />
+
             <main className="croupier-page-main">
                 <div className='flex justify-end gap-4 mb-5'>
-                    <h1 className='croupier-subtitle-white text-2xl font-bold text-white'>Entrar em um grupo:</h1>
+                    <h1 className='croupier-subtitle-white text2xl font-bold text-white'>Entrar em um grupo:</h1>
                     <JoinGroupForm onJoinSuccess={fetchGroups} />
                 </div>
                 <div className="croupier-page-header">
-                    <h1 className="croupier-subtitle-white">Seus Grupos</h1>
+                    <h1 className="croupier-subtitle-white text-4xl">Seus Grupos</h1>
 
                     <button
                         type="button"
@@ -256,7 +256,7 @@ export default function GroupePage() {
                                             onSelectGroup={selectElement}
                                             onEdit={() => handleOpenEditModal(grupo)}
                                             onDelete={() => handleDeleteGroup(grupo.id)}
-                                        onShareClick={() => {setCurrentShareCode(grupo.shareCode); setIsModalOpen(true);}}
+                                            onShareClick={() => {setCurrentShareCode(grupo.shareCode); setIsModalOpen(true);}}
                                         />
                                     </div>
                                 ))}
@@ -266,7 +266,6 @@ export default function GroupePage() {
                 </div>
             </main>
             <ShareGroupModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} shareCode={currentShareCode} />
-
             {/* MODAL COORDENADO PELO ESTADO 'editingGroup' */}
             {showModal && (
                 <div className="croupier-modal-overlay">
