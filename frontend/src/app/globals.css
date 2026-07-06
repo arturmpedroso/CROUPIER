@@ -98,6 +98,14 @@
   aspect-ratio: 16 / 10;        /* Força a proporção retangular da mesa */
 }
 
+/* As 6 Caçapas da Mesa (Pockets)*/
+.table-pocket {
+  background: radial-gradient(circle, #000000 60%, #1a1a1a 100%);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  /* Posicionamento base */
+  @apply absolute w-8 h-8 rounded-full border-2 border-black/60 z-10;
+}
+
   /* As 6 Caçapas da Mesa (Pockets)*/
   .table-pocket {
     background: radial-gradient(circle, #000000 60%, #1a1a1a 100%);
