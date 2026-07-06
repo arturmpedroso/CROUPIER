@@ -1,5 +1,5 @@
 "use client"
-
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Sidebar, { Element } from '@components/layout/Sidebar';
 import GroupBox from '@/components/peaces/GroupBox';
@@ -40,6 +40,8 @@ export default function GroupePage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentShareCode, setCurrentShareCode] = useState(''); // Armazena o código do grupo clicado
 
+    // Acesso aos baralhos
+    const router = useRouter();
     // Busca os grupos do usuário
     const fetchGroups = async () => {
         setIsLoading(true);
@@ -204,9 +206,9 @@ export default function GroupePage() {
         }
     }
 
-    const selectElement = (idElement: number) => {
+const selectElement = (idElement: number) => {
         setActiveId(idElement);
-        console.log("Acessando o grupo ID:", idElement);
+        router.push(`/groups/${idElement}`); 
     };
 
     const sidebarElements: Element[] = groups.map(g => ({
