@@ -11,7 +11,7 @@ const API_ROUTES = {
     decks: `${API_BASE}/decks`,
 };
 
-// Interface
+// Interfaces
 interface DeckData {
     id: number;
     name: string;
@@ -20,7 +20,14 @@ interface DeckData {
         flashcards: number;
     };
 }
-
+interface GroupDetails {
+    id: number;
+    ownerId: number; // Se o ID do usuário no seu banco for string (UUID), mude para string
+    shares?: {
+        userId: number; // Mesmo caso aqui, ajuste para string se for UUID
+        canEdit: boolean;
+    }[];
+}
 export default function GroupDecksPage() {
     const params = useParams();
     const router = useRouter();
@@ -36,6 +43,7 @@ export default function GroupDecksPage() {
     const [newDeckName, setNewDeckName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
 
+    const [canEditGroup, setCanEditGroup] = useState(false);
     // Busca os baralhos do grupo específico
     const fetchDecks = async () => {
         setIsLoading(true);
@@ -227,13 +235,16 @@ export default function GroupDecksPage() {
                 <div className="croupier-page-header mt-2">
                     <h1 className="croupier-subtitle-white text-4xl">Baralhos da Mesa</h1>
 
-                    <button
-                        type="button"
-                        onClick={handleOpenCreateModal}
-                        className="croupier-btn-accent"
-                    >
-                        + Novo Baralho
-                    </button>
+                    {/* verificação de permissão de edição */}
+                    {canEditGroup && (
+                        <button
+                            type="button"
+                            onClick={handleOpenCreateModal}
+                            className="croupier-btn-accent"
+                        >
+                            + Novo Baralho
+                        </button>
+                    )}
                 </div>
 
                 <div className="croupier-content-panel">
@@ -253,6 +264,7 @@ export default function GroupDecksPage() {
                                         id={deck.id}
                                         title={deck.name}
                                         flashcardsCount={deck._count.flashcards}
+                                        canEdit={canEditGroup}
                                         onSelectDeck={selectElement}
                                         onEdit={() => handleOpenEditModal(deck)}
                                         onDelete={() => handleDeleteDeck(deck.id)}

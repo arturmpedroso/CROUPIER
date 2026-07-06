@@ -7,11 +7,12 @@ type DeckProps = {
     title: string;
     flashcardsCount: number;
     onSelectDeck: (id: number) => void;
+    canEdit: boolean;
     onEdit: () => void;
     onDelete: () => void;
 }
 
-export default function DeckBox({ id, title, flashcardsCount, onSelectDeck, onEdit, onDelete }: DeckProps) {
+export default function DeckBox({ id, title, flashcardsCount, canEdit, onSelectDeck, onEdit, onDelete }: DeckProps) {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -26,30 +27,29 @@ export default function DeckBox({ id, title, flashcardsCount, onSelectDeck, onEd
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    return (
-        <div
-            id={`deck-${id}`}
-            className="croupier-group-card relative flex flex-col"
-        >
-            {/* HEADER DO BARALHO (TÍTULO E OPÇÕES) */}
+
+return (
+        <div id={`deck-${id}`} className="croupier-group-card relative flex flex-col">
             <div className='flex justify-between items-start'>
                 <h3 className="croupier-group-card-title pr-10">
                     {title}
                 </h3>
+                
                 <div className='flex'>
-                    <div className="relative z-20" ref={menuRef}>
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setMenuOpen(!menuOpen);
-                            }}
-                            className="text-[#A9BBBD] hover:text-[#97DB4F] transition-colors p-2 bg-[#121312]/80 rounded-lg border border-zinc-800"
-                            title="Opções do Baralho"
-                        >
-                            ✏️ {/* mudar icone futuramente */}
-                        </button>
-
+                    {/* proteção da condição com o {canEdit && (...)} */}
+                    {canEdit && (
+                        <div className="relative z-20" ref={menuRef}>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMenuOpen(!menuOpen);
+                                }}
+                                className="text-[#A9BBBD] hover:text-[#97DB4F] transition-colors p-2 bg-[#121312]/80 rounded-lg border border-zinc-800"
+                                title="Opções do Baralho"
+                            >
+                                ✏️
+                            </button>
                         {menuOpen && (
                             <div
                                 className="absolute right-0 mt-2 w-44 bg-[#121312] border border-zinc-800 rounded-xl shadow-2xl overflow-hidden"
@@ -80,7 +80,8 @@ export default function DeckBox({ id, title, flashcardsCount, onSelectDeck, onEd
                                 </button>
                             </div>
                         )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
