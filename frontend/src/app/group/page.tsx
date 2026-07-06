@@ -1,54 +1,106 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Sidebar, { Element } from '@components/layout/Sidebar';
 import GroupBox from '@/components/peaces/GroupBox';
 
-
+interface GroupData {
+    id: number;
+    name: string;
+    description: string | null;
+    isPrivate: boolean;
+}
 
 export default function GroupePage() {
-    // VARIAVEIS PARA TESTE =========================
-    const idUser = 1;
-    const nameUser = "DIOGO";
-    const listElement: Element[] = [
-        { id: 1, name: "Álgebra Linerar 1", description: "Descrição" },
-        { id: 2, name: "Álgebra Linerar 2", description: "Descrição" },
-        { id: 3, name: "Química 1", description: "Descrição" },
-        { id: 4, name: "Química 2", description: "Descrição" },
-        { id: 5, name: "Química 3", description: "Descrição" },
-        { id: 6, name: "Estrutura de Dados 1", description: "Descrição" },
-        { id: 7, name: "Estrutura de Dados 2", description: "Descrição" },
-        { id: 8, name: "Estrutura de Dados 3", description: "Descrição" },
-        { id: 9, name: "Cálculo 1", description: "Descrição" },
-        { id: 10, name: "Cálculo 2", description: "Descrição" },
-        { id: 11, name: "Redes 1", description: "Descrição" },
-        { id: 12, name: "Redes 2", description: "Descrição" },
-        { id: 13, name: "LP1", description: "Descrição" },
-        { id: 14, name: "LP2", description: "Descrição" },
-        { id: 15, name: "LP3", description: "Descrição" },
-        { id: 16, name: "Redes 1", description: "Descrição" },
-        { id: 17, name: "Redes 2", description: "Descrição" },
-        { id: 18, name: "Churrasco 1", description: "Descrição" },
-        { id: 19, name: "Foguetes 1", description: "Descrição" },
-        { id: 20, name: "Pontes 1", description: "Descrição" },
-    ];
-    //===============================================
-
-    //VARIAVEIS PARA CONTROLE =======================
+    // ESTADOS PARA OS DADOS DO BACKEND =====================
+    const [groups, setGroups] = useState<GroupData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [activeId, setActiveId] = useState<number | null>(null);
 
-    //Funcao para a sidebar encontrar o elemento
+    // ESTADOS PARA O MODAL DE CRIAÇÃO ======================
+    const [showModal, setShowModal] = useState(false);
+    const [newGroupName, setNewGroupName] = useState('');
+    const [newGroupDesc, setNewGroupDesc] = useState('');
+    const [newGroupPrivate, setNewGroupPrivate] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+
+    // FUNÇÃO PARA BUSCAR OS GRUPOS NA API ==================
+    const fetchGroups = async () => {
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('@croupier:token');
+            if (!token) return; 
+
+            const response = await fetch('http://localhost:4000/groups', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setGroups(data);
+            } else {
+                console.error("Erro na resposta da API");
+            }
+        } catch (error) {
+            console.error("Erro ao conectar com o servidor:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // CARREGA OS GRUPOS QUANDO A PÁGINA ABRE ===============
+    useEffect(() => {
+        fetchGroups();
+    }, []);
+
+    // FUNÇÃO PARA CRIAR UM NOVO GRUPO ======================
+    const handleCreateGroup = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsCreating(true);
+
+        try {
+            const token = localStorage.getItem('@croupier:token');
+            const response = await fetch('http://localhost:4000/groups', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: newGroupName,
+                    description: newGroupDesc,
+                    isPrivate: newGroupPrivate
+                })
+            });
+
+            if (response.ok) {
+                setNewGroupName('');
+                setNewGroupDesc('');
+                setNewGroupPrivate(false);
+                setShowModal(false);
+                fetchGroups();
+            }
+        } catch (error) {
+            console.error("Erro ao criar grupo:", error);
+        } finally {
+            setIsCreating(false);
+        }
+    };
+
+    // FUNÇÕES DE NAVEGAÇÃO DA SIDEBAR ======================
     const findElement = (idElement: number) => {
         setActiveId(idElement);
-
         const scrollContainer = document.getElementById('scroll-container-groups');
         const elementToScroll = document.getElementById(`group-${idElement}`);
 
         if (scrollContainer && elementToScroll) {
             const containerRect = scrollContainer.getBoundingClientRect();
             const elementRect = elementToScroll.getBoundingClientRect();
-
             const scrollTopPosition = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - 16;
 
             scrollContainer.scrollTo({
@@ -58,46 +110,121 @@ export default function GroupePage() {
         }
     }
 
-    //Funcao para acessar algum elemento
     const selectElement = (idElement: number) => {
         setActiveId(idElement);
-
-        //Para teste no console
-        console.log(idElement);
-        /*
-        Codigo para acessar o conteudo do grupo
-        ...
-        */
+        console.log("Acessando o grupo ID:", idElement);
+        // Futuro redirecionamento: router.push(`/groups/${idElement}`)
     };
-    //===============================================
-    //Futuramente carregar os dados do backend ======
-    //UseEffect(() =>{},[]);
-    //===============================================
+
+    const sidebarElements: Element[] = groups.map(g => ({
+        id: g.id,
+        name: g.name,
+        description: g.description || ""
+    }));
+
     return (
-        <div className="flex">
-            <Sidebar elements={listElement} activeId={activeId} onFindElement={findElement} />
-            <main className='flex-1 p-8 h-[92vh] flex flex-col'>
-                <div className='flex flex-line mb-5'>
-                    <h1 className='croupier-subtitle-white'>Seus Grupos</h1>
+        <div className="flex relative">
+            <Sidebar elements={sidebarElements} activeId={activeId} onFindElement={findElement} />
+            
+            <main className='flex-1 p-8 h-[92vh] flex flex-col relative'>
+                <div className='flex justify-between items-center mb-5'>
+                    <h1 className='croupier-subtitle-white text-2xl font-bold text-white'>Seus Grupos</h1>
+                    
+                    <button 
+                        onClick={() => setShowModal(true)}
+                        className='bg-[#97DB4F] hover:bg-[#8add40] text-[#1c1e1a] font-bold px-4 py-2 rounded-lg transition-transform active:scale-95'
+                    >
+                        + Novo Grupo
+                    </button>
                 </div>
+
                 <div className='bg-[#233119] flex-1 rounded-2xl border border-zinc-800 flex overflow-hidden'>
                     <div
                         id="scroll-container-groups"
                         className='flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent'>
-                        <div className='grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6'>
-                            {listElement.map((grupo) => (
-                                <GroupBox
-                                    key={grupo.id}
-                                    id={grupo.id}
-                                    title={grupo.name}
-                                    description={grupo.description}
-                                    onSelectGroup={selectElement}
-                                />
-                            ))}
-                        </div>
+                        
+                        {isLoading ? (
+                            <div className="text-center text-zinc-400 mt-10">Buscando cartas na mesa...</div>
+                        ) : groups.length === 0 ? (
+                            <div className="text-center text-zinc-400 mt-10">Nenhum grupo encontrado. Crie sua primeira aposta!</div>
+                        ) : (
+                            <div className='grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6'>
+                                {groups.map((grupo) => (
+                                    <GroupBox
+                                        key={grupo.id}
+                                        id={grupo.id}
+                                        title={grupo.name}
+                                        description={grupo.description || "Sem descrição"}
+                                        onSelectGroup={selectElement}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>
+
+            {showModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-[#1c1e1a] border border-zinc-800 p-8 rounded-2xl w-full max-w-md shadow-2xl">
+                        <h2 className="text-2xl font-bold text-white mb-6">Criar Novo Grupo</h2>
+                        
+                        <form onSubmit={handleCreateGroup} className="flex flex-col gap-4">
+                            <div>
+                                <label className="text-sm font-bold text-zinc-400 mb-1 block">Nome do Grupo</label>
+                                <input 
+                                    type="text" 
+                                    required
+                                    value={newGroupName}
+                                    onChange={(e) => setNewGroupName(e.target.value)}
+                                    className="w-full bg-[#2a2d28] border border-zinc-700 text-white rounded-lg p-3 focus:outline-none focus:border-[#97DB4F]"
+                                    placeholder="Ex: Anatomia Humana"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-bold text-zinc-400 mb-1 block">Descrição</label>
+                                <textarea 
+                                    value={newGroupDesc}
+                                    onChange={(e) => setNewGroupDesc(e.target.value)}
+                                    className="w-full bg-[#2a2d28] border border-zinc-700 text-white rounded-lg p-3 focus:outline-none focus:border-[#97DB4F] resize-none h-24"
+                                    placeholder="Descreva o conteúdo deste baralho..."
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2 mt-2">
+                                <input 
+                                    type="checkbox" 
+                                    id="private-group"
+                                    checked={newGroupPrivate}
+                                    onChange={(e) => setNewGroupPrivate(e.target.checked)}
+                                    className="w-4 h-4 accent-[#97DB4F]"
+                                />
+                                <label htmlFor="private-group" className="text-sm text-zinc-300 cursor-pointer">
+                                    Grupo Privado
+                                </label>
+                            </div>
+
+                            <div className="flex gap-3 mt-6">
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="flex-1 bg-transparent border border-zinc-600 text-zinc-300 font-bold py-3 rounded-lg hover:bg-zinc-800 transition"
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    type="submit"
+                                    disabled={isCreating}
+                                    className="flex-1 bg-[#97DB4F] text-[#1c1e1a] font-bold py-3 rounded-lg hover:bg-[#8add40] transition disabled:opacity-50"
+                                >
+                                    {isCreating ? 'Criando...' : 'Confirmar'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -1,6 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
-import { useState } from 'react';
 
 // Elemtos da sidebar, os nomes dos grupos/baralhos que ficam do lado
 export type Element = {
