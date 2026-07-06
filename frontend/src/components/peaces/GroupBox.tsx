@@ -30,7 +30,8 @@ export default function GroupBox({ id, title, description, onSelectGroup, onEdit
     return (
         <div
             id={`group-${id}`}
-            className="croupier-group-card relative"
+            className="croupier-group-card relative cursor-pointer"
+            onClick={() => onSelectGroup(id)}
         >
             {/* MENU DE OPÇÕES FLUTUANTE (LÁPIS) */}
 
