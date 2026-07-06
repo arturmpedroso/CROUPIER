@@ -31,6 +31,7 @@ model Group {
   name        String
   description String?
   isPrivate   Boolean      @default(false)
+  shareCode   String       @unique
   ownerId     Int
   createdAt   DateTime     @default(now())
   

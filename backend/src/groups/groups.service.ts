@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { randomBytes } from 'crypto'; // <-- Import do crypto do node
 
 @Injectable()
 export class GroupsService {
@@ -7,11 +8,13 @@ export class GroupsService {
 
   // Cria um grupo
   async create(userId: number, dto: { name: string; description?: string; isPrivate?: boolean }) {
+    const generatedCode = randomBytes(3).toString('hex').toUpperCase(); //gera o código random de compartilhamento
     return this.prisma.group.create({
       data: {
         name: dto.name,
         description: dto.description,
         isPrivate: dto.isPrivate ?? false,
+        shareCode: generatedCode,
         ownerId: userId,
       },
     });
@@ -31,6 +34,35 @@ export class GroupsService {
         shares: { include: { user: { select: { username: true } } } },
         _count: { select: { decks: true } } 
       },
+    });
+  }
+
+  // Usuário entra em um grupo pelo código de compartilhamento do grupo
+  async joinByCode(userId: number, shareCode: string) {
+    // Busca o grupo que tem esse código
+    const group = await this.prisma.group.findUnique({
+      where: { shareCode }
+    });
+
+    if (!group) {
+      throw new NotFoundException('Código de convite inválido ou expirado.');
+    }
+
+    if (group.ownerId === userId) {
+      throw new BadRequestException('Você já é o dono deste grupo.');
+    }
+
+    // Registra o usuário no grupo (se ele já estiver, o upsert apenas ignora)
+    return this.prisma.groupShare.upsert({
+      where: {
+        groupId_userId: { groupId: group.id, userId }
+      },
+      update: {}, // Não atualiza nada se já existir
+      create: {
+        groupId: group.id,
+        userId,
+        canEdit: false // Visitantes via link começam apenas como leitores por padrão
+      }
     });
   }
 

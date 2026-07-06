@@ -62,6 +62,27 @@ export class GroupsController {
     return this.groupsService.shareGroup(req.user.sub, groupId, body.targetUsername, body.canEdit);
   }
 
+  @Post('join')
+  @ApiOperation({ summary: 'Entra em um grupo usando o código de compartilhamento' })
+  @ApiResponse({ status: 201, description: 'Usuário adicionado ao grupo com sucesso.' })
+  @ApiResponse({ status: 404, description: 'Código inválido.' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        shareCode: { type: 'string', example: 'A1B2C3', description: 'O código de 6 dígitos gerado na criação do grupo' }
+      },
+      required: ['shareCode']
+    }
+  })
+  async joinGroup(
+    @Request() req: any,
+    @Body() body: { shareCode: string }
+  ) {
+    const code = body.shareCode.trim().toUpperCase(); 
+    return this.groupsService.joinByCode(req.user.sub, code);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Atualiza as informações de uma mesa/grupo existente' })
   @ApiParam({ name: 'id', description: 'ID numérico do grupo que será editado', example: 1 })
