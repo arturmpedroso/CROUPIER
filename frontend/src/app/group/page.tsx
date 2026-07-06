@@ -32,13 +32,13 @@ export default function GroupePage() {
             const token = localStorage.getItem('@croupier:token');
             if (!token) return; 
 
-            const response = await fetch('http://localhost:4000/groups', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
 
             if (response.ok) {
                 const data = await response.json();
@@ -65,7 +65,7 @@ export default function GroupePage() {
 
         try {
             const token = localStorage.getItem('@croupier:token');
-            const response = await fetch('http://localhost:4000/groups', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
