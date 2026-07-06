@@ -11,25 +11,32 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
+// ---------------------------------------------------------
 // Usuário
+// ---------------------------------------------------------
 model User {
-  id         Int          @id @default(autoincrement())
-  name       String
-  username   String       @unique
-  email      String       @unique
-  password   String
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  id           Int          @id @default(autoincrement())
+  name         String
+  username     String       @unique
+  email        String       @unique
+  password     String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   
-  ownedGroups Group[]     @relation("GroupOwner") // Grupos que este usuário criou
+  ownedGroups  Group[]      @relation("GroupOwner") // Grupos que este usuário criou
   sharedGroups GroupShare[] // Grupos que compartilharam com ele
+  scores       UserScore[]  // Pontuações individuais nos flashcards
+  feedbacks    Feedback[]   // Feedbacks deixados nos grupos
 }
 
+// ---------------------------------------------------------
 // Tabela de Grupos
+// ---------------------------------------------------------
 model Group {
   id          Int          @id @default(autoincrement())
   name        String
-  description String?
+  description String?      @db.Text
   isPrivate   Boolean      @default(false)
   shareCode   String       @unique
   ownerId     Int
@@ -39,9 +46,12 @@ model Group {
   owner       User         @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   shares      GroupShare[] // Um grupo pode ser compartilhado com varios
   decks       Deck[]       // Um grupo pode conter vários baralhos
+  feedbacks   Feedback[]
 }
 
+// ---------------------------------------------------------
 // Tabela Intermediária N:N (CompartilharGrupo)
+// ---------------------------------------------------------
 model GroupShare {
   id        Int      @id @default(autoincrement())
   groupId   Int
@@ -56,13 +66,70 @@ model GroupShare {
   @@unique([groupId, userId]) // Previnir duplicidade de compartilhamento para o mesmo usuário
 }
 
-// Baralhos (Decks) 
+// ---------------------------------------------------------
+// Baralhos (Decks)
+// ---------------------------------------------------------
 model Deck {
   id        Int      @id @default(autoincrement())
   name      String
   groupId   Int
   createdAt DateTime @default(now())
 
-  // Relação
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  // Relações
+  group      Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  flashcards Flashcard[] // Cartas pertencentes a este baralho
+}
+
+// ---------------------------------------------------------
+// Flashcards (Cartas)
+// ---------------------------------------------------------
+model Flashcard {
+  id           Int      @id @default(autoincrement())
+  name         String?  
+  question     String   @db.Text
+  answer       String   @db.Text
+  totalCorrect Int      @default(0) // Acertos somados de todos os participantes
+  totalWrong   Int      @default(0) // Erros somados de todos os participantes
+  deckId       Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relações
+  deck         Deck        @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  userScores   UserScore[] // Pontuação individual de cada usuário nesta carta
+}
+
+// ---------------------------------------------------------
+// Pontuação Individual (UserScore)
+// ---------------------------------------------------------
+model UserScore {
+  id          Int      @id @default(autoincrement())
+  flashcardId Int
+  userId      Int
+  correct     Int      @default(0) // Acertos individuais do usuário
+  wrong       Int      @default(0) // Erros individuais do usuário
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  flashcard   Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Garante que um usuário só tenha um registro de pontuação por flashcard
+  @@unique([flashcardId, userId]) 
+}
+
+// ---------------------------------------------------------
+// Feedback
+// ---------------------------------------------------------
+model Feedback {
+  id          Int      @id @default(autoincrement())
+  groupId     Int
+  userId      Int
+  description String   @db.Text
+  stars       Int      
+  createdAt   DateTime @default(now())
+
+  // Relações
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
