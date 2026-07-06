@@ -56,6 +56,7 @@ export default function MesaDeEstudos() {
   // Flashcard atual
   const flashcard = baralhoEmbaralhado[numFlashcard];
   const [alternativa, setAlternativas] = useState<string[]>([]);
+  const [respostaSelecionada, setRespostaSelecionada] = useState<string | null>(null);
 
   //Embaralhar as perguntas do flashcard
   const gerarAlternativasEmbaralhadas = (cardAtual: Flashcard) => {
@@ -76,8 +77,9 @@ export default function MesaDeEstudos() {
   };
 
   const nextFlashcard = () => {
-    if(numFlashcard < baralhoEmbaralhado.length - 1){
+    if (numFlashcard < baralhoEmbaralhado.length - 1) {
       setNumFlashcard(numFlashcard + 1);
+      setRespostaSelecionada(null);
     } else {
       //Fim de baralho, mostrar notas
     }
@@ -172,19 +174,32 @@ export default function MesaDeEstudos() {
             </h3>
 
             <div className="flex flex-col gap-2 mb-4 px-2">
-              {[
-                alternativa[0],
-                alternativa[1],
-                alternativa[2],
-                alternativa[3]
-              ].map((alt) => (
-                <button
-                  key={alt}
-                  className="bg-[#e4e4e4] hover:bg-[#d4d4d4] transition-colors text-left px-3 py-1.5 rounded-md font-bold text-xs text-gray-900 shadow-sm"
-                >
-                  {alt}
-                </button>
-              ))}
+              {alternativa.map((alt) => {
+                let corDoBotao = "bg-[#e4e4e4] hover:bg-[#d4d4d4] text-gray-900";
+
+                if (respostaSelecionada) {
+                  if (alt === flashcard.resposta) {
+                    corDoBotao = "bg-green-500 text-white";
+                  } else if (alt === respostaSelecionada) {
+                    corDoBotao = "bg-red-500 text-white";
+                  } else {
+                    corDoBotao = "bg-gray-200 text-gray-400 opacity-80 cursor-not-allowed";
+                  }
+                }
+
+                return (
+                  <button
+                    key={alt}
+                    // Desativa o botão se alguma resposta já foi selecionada
+                    disabled={respostaSelecionada !== null}
+                    // Ao clicar, salva qual botão foi escolhido
+                    onClick={() => setRespostaSelecionada(alt)}
+                    className={`transition-colors text-left px-3 py-1.5 rounded-md font-bold text-xs shadow-sm ${corDoBotao}`}
+                  >
+                    {alt}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
