@@ -5,6 +5,16 @@ import Link from 'next/link';
 import Sidebar, { Element } from '@components/layout/Sidebar';
 import GroupBox from '@/components/peaces/GroupBox';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL; // Rota Base
+
+// Rotas
+const API_ROUTES = {
+    groups: `${API_BASE}/groups`,
+    decks:  `${API_BASE}/decks`,      // Rota dos baralhos
+    cards:  `${API_BASE}/flashcards`, // Rota dos flashcards
+    study:  `${API_BASE}/study`,      // Rota do modo estudo
+};
+
 interface GroupData {
     id: number;
     name: string;
@@ -32,7 +42,7 @@ export default function GroupePage() {
             const token = localStorage.getItem('@croupier:token');
             if (!token) return; 
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
+        const response = await fetch(API_ROUTES.groups, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -65,7 +75,7 @@ export default function GroupePage() {
 
         try {
             const token = localStorage.getItem('@croupier:token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
+            const response = await fetch(API_ROUTES.groups, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
