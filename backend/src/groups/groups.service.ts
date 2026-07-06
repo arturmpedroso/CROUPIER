@@ -17,7 +17,7 @@ export class GroupsService {
     });
   }
 
-  //Lista todos os grupos acessíveis por um usuário
+  // Lista todos os grupos acessíveis por um usuário
   async findAllAccessible(userId: number) {
     return this.prisma.group.findMany({
       where: {
@@ -58,6 +58,37 @@ export class GroupsService {
         userId: targetUser.id,
         canEdit
       }
+    });
+  }
+
+  // Atualiza as informações de um grupo existente
+  async update(userId: number, groupId: number, dto: { name?: string; description?: string; isPrivate?: boolean }) {
+    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+
+    if (!group) throw new NotFoundException('Grupo não encontrado.');
+    if (group.ownerId !== userId) throw new ForbiddenException('Apenas o dono da mesa pode alterar este grupo.');
+
+    return this.prisma.group.update({
+      where: { id: groupId },
+      data: {
+        name: dto.name ?? group.name,
+        description: dto.description !== undefined ? dto.description : group.description,
+        isPrivate: dto.isPrivate ?? group.isPrivate,
+      },
+    });
+  }
+
+  // Deleta um grupo da banca
+  async delete(userId: number, groupId: number) {
+    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+
+    if (!group) throw new NotFoundException('Grupo não encontrado.');
+    if (group.ownerId !== userId) throw new ForbiddenException('Apenas o dono da mesa pode recolher e deletar este grupo.');
+
+    // 'onDelete: Cascade', 
+    // o Prisma apagará os baralhos e flashcards filhos automaticamente ao rodar o comando abaixo.
+    return this.prisma.group.delete({
+      where: { id: groupId },
     });
   }
 }

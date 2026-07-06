@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @layer base {
-/*Scrool bar*/
+  /* Scroll bar */
   * {
     scrollbar-width: thin;
     scrollbar-color: #4b5563 transparent;
@@ -30,29 +30,29 @@
 }
 
 @layer components {
-  /*
-  .croupier-container{}
-  */
-  .croupier-title{
+  /* ==========================================================================
+     CLASSES ORIGINAIS DO SEU SISTEMA (PRESERVADAS)
+     ========================================================================== */
+  .croupier-title {
     font-size: 3rem;
     font-weight: bold;
     color: #A21C0A;
     text-align: left;
     padding-bottom: 2rem;
   }
-  .croupier-subtitle{
+  .croupier-subtitle {
     font-size: 2rem;
     font-weight: 500;
     color: #A9BBBD;
     text-align: left;
   }
-  .croupier-subtitle-white{
+  .croupier-subtitle-white {
     color: #ffffff;
     font-size: 1.5rem;
     line-height: 2rem;
     font-weight: 700;
   }
-  .croupier-text{
+  .croupier-text {
     font-size: 1.2rem;
     color: #E6FAFC;
     text-align: left;
@@ -69,40 +69,40 @@
     @apply h-[3px] w-full;
   }
 
-/* Mesa de Jogo (Card Central) - Novo Estilo Profissional */
-.croupier-game-table {
-  background-color: #354727; /* Feltro Central Escuro */
-  border: 24px solid #5d4037;/*Borda de Madeira  */
-  
-  /* texturas */
-  background-image: 
-    linear-gradient(rgba(53, 71, 39, 1), rgba(53, 71, 39, 1)), /* feltro central */
-    linear-gradient(135deg, #4e342e 25%, transparent 25%), /*veios madeira*/
-    linear-gradient(225deg, #4e342e 25%, transparent 25%), /*veios madeira*/
-    linear-gradient(45deg, #4e342e 25%, transparent 25%), /*veios madeira*/
-    linear-gradient(315deg, #4e342e 25%, transparent 25%); /*veios madeira*/
-  background-position: center, 10px 0, 10px 0, 0 0, 0 0;
-  background-size: auto, 20px 20px, 20px 20px, 20px 20px, 20px 20px;
-  background-origin: padding-box, border-box, border-box, border-box, border-box;
-  background-clip: padding-box, border-box, border-box, border-box, border-box;
+  /* Mesa de Jogo (Card Central) - Novo Estilo Profissional */
+  .croupier-game-table {
+    background-color: #354727; /* Feltro Central Escuro */
+    border: 24px solid #5d4037; /* Borda de Madeira */
+    
+    /* texturas */
+    background-image: 
+      linear-gradient(rgba(53, 71, 39, 1), rgba(53, 71, 39, 1)), /* feltro central */
+      linear-gradient(135deg, #4e342e 25%, transparent 25%), /*veios madeira*/
+      linear-gradient(225deg, #4e342e 25%, transparent 25%), /*veios madeira*/
+      linear-gradient(45deg, #4e342e 25%, transparent 25%), /*veios madeira*/
+      linear-gradient(315deg, #4e342e 25%, transparent 25%); /*veios madeira*/
+    background-position: center, 10px 0, 10px 0, 0 0, 0 0;
+    background-size: auto, 20px 20px, 20px 20px, 20px 20px, 20px 20px;
+    background-origin: padding-box, border-box, border-box, border-box, border-box;
+    background-clip: padding-box, border-box, border-box, border-box, border-box;
 
-  /* Sombra */
-  box-shadow: 
-    inset 0 0 15px rgba(0, 0, 0, 0.7), /* Sombra sobre feltro */
-    0 20px 40px rgba(0, 0, 0, 0.6);   /* Sombra externa da mesa */
-  @apply w-full max-w-md p-10 relative my-12;
-  @apply rounded-[1.5rem]; 
-}
+    /* Sombra */
+    box-shadow: 
+      inset 0 0 15px rgba(0, 0, 0, 0.7), /* Sombra sobre feltro */
+      0 20px 40px rgba(0, 0, 0, 0.6);   /* Sombra externa da mesa */
+    @apply w-full max-w-md p-10 relative my-12;
+    @apply rounded-[1.5rem]; 
+  }
 
-/* As 6 Caçapas da Mesa (Pockets)*/
-.table-pocket {
-  background: radial-gradient(circle, #000000 60%, #1a1a1a 100%);
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.1);
-  /* Posicionamento base */
-  @apply absolute w-8 h-8 rounded-full border-2 border-black/60 z-10;
-}
+  /* As 6 Caçapas da Mesa (Pockets)*/
+  .table-pocket {
+    background: radial-gradient(circle, #000000 60%, #1a1a1a 100%);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    /* Posicionamento base */
+    @apply absolute w-8 h-8 rounded-full border-2 border-black/60 z-10;
+  }
 
-/* Posições dos Cantos */
+  /* Posições dos Cantos */
   .pocket-top-left     { @apply -top-[13px] -left-[13px]; }
   .pocket-top-right    { @apply -top-[13px] -right-[13px]; }
   .pocket-bottom-left  { @apply -bottom-[13px] -left-[13px]; }
@@ -111,6 +111,7 @@
   /* Posições do Meio */
   .pocket-middle-left  { @apply top-1/2 -left-[20px] -translate-y-1/2; }
   .pocket-middle-right { @apply top-1/2 -right-[20px] -translate-y-1/2; }
+  
   /* Tipografias Dinâmicas */
   .croupier-display-title {
     color: #E6FAFC;
@@ -141,4 +142,258 @@
     color: #1c1e1a;
     @apply px-5 py-2 font-semibold rounded-lg hover:bg-[#E6FAFC] transition text-sm;
   }
+
+
+  /* Botão Primário Moderno */
+  .btn-primary {
+    background-color: #FFFFFF;
+    color: #1c1e1a;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn-primary:hover {
+    background-color: #97DB4F;
+    transform: scale(0.98);
+  }
+
+  /* Layout da Ficha de Time/Membros */
+  .team-grid {
+    @apply flex flex-wrap justify-center gap-[30px] mt-[30px];
+  }
+  .team-member {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    @apply flex flex-col items-center w-[220px] bg-transparent;
+  }
+  .team-member:hover {
+    transform: scale(1.1) rotate(10deg);
+  }
+
+  /* O componente visual da ficha de Poker/Cassino */
+  .team-member .chip-visual {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    position: relative;
+    background: conic-gradient(
+        #A21C0A 0deg 45deg,
+        #FFFFFF 45deg 90deg,
+        #A21C0A 90deg 135deg,
+        #FFFFFF 135deg 180deg,
+        #A21C0A 180deg 225deg,
+        #FFFFFF 225deg 270deg,
+        #A21C0A 270deg 315deg,
+        #FFFFFF 315deg 360deg
+    );
+    border: 3px solid #000;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    @apply flex items-center justify-center;
+  }
+  .team-member img {
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #000;
+  }
+  .team-member h3 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 1.2rem;
+    color: #FFFFFF;
+  }
+  .team-member p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #97DB4F;
+    font-weight: bold;
+  }
+
+
+  /* Seção e Grids para as Features */
+  .features-section {
+    background-color: #121312;
+    border-bottom: 3px solid #A21C0A; 
+    @apply py-[60px] px-[50px] text-center;
+  }
+  .features-section h2 {
+    font-size: 2.5rem;
+    color: #FFFFFF;
+    margin-bottom: 50px;
+    font-weight: bold;
+  }
+  .features-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* Cards de Features (Mini mesas de sinuca com caçapas) */
+  .feature-item {
+    background-color: #354727;
+    padding: 35px 30px 30px 30px;
+    border-radius: 12px;
+    border: 12px solid #5d4037;
+    text-align: left;
+    transition: transform 0.3s, box-shadow 0.3s;
+    background-image: 
+        radial-gradient(circle at 0 0, #0a0a0a 16px, transparent 17px),
+        radial-gradient(circle at 100% 0, #0a0a0a 16px, transparent 17px),
+        radial-gradient(circle at 0 100%, #0a0a0a 16px, transparent 17px),
+        radial-gradient(circle at 100% 100%, #0a0a0a 16px, transparent 17px);
+    box-shadow: 
+        inset 0 0 15px 5px rgba(0, 0, 0, 0.5),
+        0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+  .feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        inset 0 0 15px 5px rgba(0, 0, 0, 0.5),
+        0 15px 30px rgba(0, 0, 0, 0.6);
+  }
+  .feature-item h3 {
+    font-size: 1.5rem;
+    color: #FFFFFF;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  .feature-item p {
+    font-size: 1rem;
+    color: #FFFFFF;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ==========================================================================
+     DASHBOARD / GRUPOS
+     ========================================================================== */
+  .croupier-page-main {
+    @apply flex-1 p-8 h-[92vh] flex flex-col relative;
+  }
+
+  .croupier-page-header {
+    @apply flex justify-between items-center mb-5;
+  }
+
+  .croupier-content-panel {
+    background-color: #354727;
+    @apply flex-1 rounded-2xl border border-zinc-800 flex overflow-hidden;
+  }
+
+  .croupier-scroll-area {
+    @apply flex-1 p-4 overflow-y-auto;
+  }
+
+  .croupier-grid-list {
+    @apply grid grid-cols-1 gap-6;
+  }
+
+  .croupier-empty-state {
+    color: #A9BBBD;
+    @apply text-center mt-10 text-base;
+  }
+
+  .croupier-btn-accent {
+    background-color: #97DB4F;
+    color: #1c1e1a;
+    @apply font-bold px-4 py-2 rounded-lg transition-all hover:bg-[#8add40] active:scale-95 disabled:opacity-50;
+  }
+
+  .croupier-btn-accent-block {
+    background-color: #97DB4F;
+    color: #1c1e1a;
+    @apply flex-1 font-bold py-3 rounded-lg transition-all hover:bg-[#8add40] disabled:opacity-50;
+  }
+
+  .croupier-btn-ghost {
+    color: #A9BBBD;
+    @apply flex-1 bg-transparent border border-zinc-600 font-bold py-3 rounded-lg hover:bg-zinc-800 transition;
+  }
+
+  .croupier-modal-overlay {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50;
+  }
+
+  .croupier-modal {
+    background-color: #1c1e1a;
+    @apply border border-zinc-800 p-8 rounded-2xl w-full max-w-md shadow-2xl;
+  }
+
+  .croupier-modal-title {
+    @apply text-2xl font-bold mb-6;
+    color: #ffffff;
+  }
+
+  .croupier-form-stack {
+    @apply flex flex-col gap-4;
+  }
+
+  .croupier-dark-input {
+    background-color: #2a2d28;
+    color: #E6FAFC;
+    @apply w-full border border-zinc-700 rounded-lg p-3 focus:outline-none focus:border-[#97DB4F] placeholder:text-zinc-500;
+  }
+
+  .croupier-dark-textarea {
+    background-color: #2a2d28;
+    color: #E6FAFC;
+    @apply w-full border border-zinc-700 rounded-lg p-3 focus:outline-none focus:border-[#97DB4F] placeholder:text-zinc-500 resize-none h-24;
+  }
+
+  .croupier-checkbox-row {
+    @apply flex items-center gap-2 mt-2;
+  }
+
+  .croupier-checkbox-label {
+    @apply text-sm cursor-pointer;
+    color: #E6FAFC;
+  }
+
+  .croupier-form-actions {
+    @apply flex gap-3 mt-6;
+  }
+
+  .croupier-group-card {
+    background-color: #1c1e1a;
+    @apply border border-zinc-800 rounded-xl p-6 cursor-pointer hover:border-[#97DB4F] hover:-translate-y-1 hover:shadow-lg transition-all duration-200 flex flex-col justify-between min-h-[320px];
+    box-shadow: 0 0 0 transparent;
+  }
+
+  .croupier-group-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(151, 219, 79, 0.1);
+  }
+
+  .croupier-group-card:hover .croupier-group-card-title {
+    color: #97DB4F;
+  }
+
+  .croupier-group-card:hover .croupier-group-card-image {
+    opacity: 1;
+  }
+
+  .croupier-group-card-title {
+    color: #ffffff;
+    @apply text-xl font-bold mb-2 transition-colors;
+  }
+
+  .croupier-group-card-image {
+    @apply w-full h-full object-contain opacity-70 transition-opacity drop-shadow-md;
+  }
+
+  .croupier-group-card-desc-panel {
+    background-color: #2a2d28;
+    @apply w-1/2 max-h-43 h-full border border-zinc-700/50 rounded-lg p-3 overflow-y-auto;
+  }
+
+  .croupier-group-card-desc {
+    color: #A9BBBD;
+    @apply text-sm text-justify;
+  }
+
 }
