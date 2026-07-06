@@ -10,6 +10,8 @@ interface Flashcard {
   nomeBaralho: string;
   pergunta: string;
   resposta: string;
+  quantErros: number;
+  quantAcertos: number;
 }
 
 export default function MesaDeEstudos() {
@@ -18,25 +20,33 @@ export default function MesaDeEstudos() {
     id: 1,
     nomeBaralho: "Geometria",
     pergunta: "Qual alternativa apresenta corretamente a fórmula da área de um círculo?",
-    resposta: "A = πr²"
+    resposta: "A = πr²",
+    quantErros: 3,
+    quantAcertos: 6
   }
   const flashcard2: Flashcard = {
     id: 2,
     nomeBaralho: "Geometria",
     pergunta: "Qual alternativa apresenta corretamente a fórmula da área de quadrado",
-    resposta: "A = bh"
+    resposta: "A = bh",
+    quantErros: 4,
+    quantAcertos: 5
   }
   const flashcard3: Flashcard = {
     id: 3,
     nomeBaralho: "Geometria",
     pergunta: "Qual alternativa apresenta corretamente a fórmula da hipotenusa",
-    resposta: "h^2 = ca^2 + co^2"
+    resposta: "h^2 = ca^2 + co^2",
+    quantErros: 5,
+    quantAcertos: 4
   }
   const flashcard4: Flashcard = {
     id: 4,
     nomeBaralho: "Geometria",
     pergunta: "Qual alternativa apresenta corretamente a fórmula da área de um cilindro",
-    resposta: "A = hπr²"
+    resposta: "A = hπr²",
+    quantErros: 6,
+    quantAcertos: 3
   }
 
   // Alternativas incorretas
@@ -45,8 +55,12 @@ export default function MesaDeEstudos() {
   const alternativasIncorretas = ["A = 2πr", "A = b × h", "A = πr", "A = l²"];
   //=====================================================
 
+  //CARREGAR DO BANCO DE DADOS ==================================================================
   // Variavel onde pode carregar todos os flashcards
   const cartasDoBaralho = [flashcard1, flashcard2, flashcard3, flashcard4];
+  //=============================================================================================
+
+
   //Embaralha o flashcard
   const [baralhoEmbaralhado, setBaralho] = useState<Flashcard[]>(() => {
     return [...cartasDoBaralho].sort(() => Math.random() - 0.5);
@@ -82,8 +96,17 @@ export default function MesaDeEstudos() {
       setRespostaSelecionada(null);
     } else {
       //Fim de baralho, mostrar notas
+      atualizarErrosEAcertosNoBanco();
     }
   };
+  const sairDaSesao = () => {
+    atualizarErrosEAcertosNoBanco();
+    //Volta para o baralho
+  }
+
+  const atualizarErrosEAcertosNoBanco = () => {
+    //Funcao para atualizar erros e acertos no banco de dados
+  }
 
   //Atualiza toda vez que o flashcard muda
   useEffect(() => {
@@ -112,7 +135,12 @@ export default function MesaDeEstudos() {
           </h1>
 
           <div className="flex items-center gap-2 bg-[#693131] rounded-full pl-3 pr-1 py-1 border border-[#522424] shadow-lg cursor-pointer hover:bg-[#7a3939] transition-colors">
-            <span className="text-white text-xs sm:text-sm font-medium">Sair do estudo</span>
+            <button
+              onClick={() => sairDaSesao()}
+              className="text-white text-xs sm:text-sm font-medium"
+            >
+              Sair do estudo
+            </button>
             <div className="bg-white rounded-full w-6 h-6 flex items-center justify-center shadow-inner">
               <span className="text-gray-800 font-black text-sm leading-none">X</span>
             </div>
@@ -193,7 +221,14 @@ export default function MesaDeEstudos() {
                     // Desativa o botão se alguma resposta já foi selecionada
                     disabled={respostaSelecionada !== null}
                     // Ao clicar, salva qual botão foi escolhido
-                    onClick={() => setRespostaSelecionada(alt)}
+                    onClick={() => {
+                      if (alt === flashcard.resposta) {
+                        flashcard.quantAcertos += 1;
+                      } else {
+                        flashcard.quantErros += 1;
+                      }
+                      setRespostaSelecionada(alt);
+                    }}
                     className={`transition-colors text-left px-3 py-1.5 rounded-md font-bold text-xs shadow-sm ${corDoBotao}`}
                   >
                     {alt}
@@ -206,10 +241,13 @@ export default function MesaDeEstudos() {
         </div>
 
         {/* --- BOTÃO INFERIOR --- */}
-        <div className="flex justify-center w-full z-10">
+        <div className="relative flex justify-center items-center w-full z-10">
+
+          {/* Botão Próxima (Centralizado) */}
           <button
             onClick={() => nextFlashcard()}
-            className="bg-white px-12 py-3 rounded-xl font-extrabold text-black shadow-xl hover:-translate-y-1 transition-transform relative border border-gray-200">
+            className="bg-white px-12 py-3 rounded-xl font-extrabold text-black shadow-xl hover:-translate-y-1 transition-transform relative border border-gray-200"
+          >
             {/* Detalhes de carta no botão */}
             <div className="absolute top-1 left-2 text-red-600 font-bold flex flex-col items-center leading-none">
               <span className="text-[10px]">A</span>
@@ -221,6 +259,26 @@ export default function MesaDeEstudos() {
             </div>
             Próxima
           </button>
+
+          {/* Placar de Acertos e Erros (Alinhado à direita) */}
+          <div className="absolute right-0 flex items-center gap-4 bg-[#2a2b26] border-2 border-[#1a1b18] rounded-xl px-4 py-2 shadow-inner">
+
+            {/* Acertos */}
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Acertos</span>
+              <span className="text-green-500 font-black text-lg leading-none">{flashcard.quantAcertos}</span>
+            </div>
+
+            {/* Divisória fina */}
+            <div className="w-px h-6 bg-gray-600/50"></div>
+
+            {/* Erros */}
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Erros</span>
+              <span className="text-red-500 font-black text-lg leading-none">{flashcard.quantErros}</span>
+            </div>
+
+          </div>
         </div>
 
       </div>
