@@ -246,22 +246,6 @@ export default function GroupePage() {
                                             onEdit={() => handleOpenEditModal(grupo)}
                                             onDelete={() => handleDeleteGroup(grupo.id)}
                                         />
-                                        <div className="mt-3 flex gap-2 justify-end">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleOpenEditModal(grupo)}
-                                                className="croupier-btn-ghost text-sm"
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleDeleteGroup(grupo.id)}
-                                                className="croupier-btn-ghost text-sm"
-                                            >
-                                                Deletar
-                                            </button>
-                                        </div>
                                     </div>
                                 ))}
                             </div>
