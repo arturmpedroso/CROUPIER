@@ -1,16 +1,97 @@
-import React from 'react';
+"use client"
 
+import React from 'react';
+import { useState, useEffect } from 'react';
 // Certifique-se de importar o seu arquivo de CSS aqui, se necessário
 // import './seu-arquivo-de-estilos.css'; 
 
+interface Flashcard {
+  id: string | number;
+  nomeBaralho: string;
+  pergunta: string;
+  resposta: string;
+}
+
 export default function MesaDeEstudos() {
+  // VARIAVEIS PARA TESTE ===============================
+  const flashcard1: Flashcard = {
+    id: 1,
+    nomeBaralho: "Geometria",
+    pergunta: "Qual alternativa apresenta corretamente a fórmula da área de um círculo?",
+    resposta: "A = πr²"
+  }
+  const flashcard2: Flashcard = {
+    id: 2,
+    nomeBaralho: "Geometria",
+    pergunta: "Qual alternativa apresenta corretamente a fórmula da área de quadrado",
+    resposta: "A = bh"
+  }
+  const flashcard3: Flashcard = {
+    id: 3,
+    nomeBaralho: "Geometria",
+    pergunta: "Qual alternativa apresenta corretamente a fórmula da hipotenusa",
+    resposta: "h^2 = ca^2 + co^2"
+  }
+  const flashcard4: Flashcard = {
+    id: 4,
+    nomeBaralho: "Geometria",
+    pergunta: "Qual alternativa apresenta corretamente a fórmula da área de um cilindro",
+    resposta: "A = hπr²"
+  }
+
+  // Alternativas incorretas
+  // PARA BACKEND -> essas alternativas devem ser alternativas de outros flashcards 
+  // do mesmo baralho -> isso pode der feito dentro do gerarAlternativasEmbaralhadas
+  const alternativasIncorretas = ["A = 2πr", "A = b × h", "A = πr", "A = l²"];
+  //=====================================================
+
+  // Variavel onde pode carregar todos os flashcards
+  const cartasDoBaralho = [flashcard1, flashcard2, flashcard3, flashcard4];
+  //Embaralha o flashcard
+  const [baralhoEmbaralhado, setBaralho] = useState<Flashcard[]>(() => {
+    return [...cartasDoBaralho].sort(() => Math.random() - 0.5);
+  });
+  // Numero para contagem
+  const [numFlashcard, setNumFlashcard] = useState<number>(0);
+  // Flashcard atual
+  const [flashcard, setFlashcard] = useState<Flashcard>(baralhoEmbaralhado[numFlashcard]);
+  const [alternativa, setAlternativas] = useState<string[]>([]);
+
+  //Embaralhar as perguntas do flashcard
+  const gerarAlternativasEmbaralhadas = (cardAtual: Flashcard) => {
+    // Filtra para que nao tenha duas respostas certas no mesmo flashcard
+    // Dependendo de como faz a busca pode apagar =======================
+    const incorretasValidas = alternativasIncorretas.filter(
+      (alt) => alt !== cardAtual.resposta
+    );
+    //===================================================================
+
+    const tresIncorretas = incorretasValidas
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3);
+
+    const todasAsOpcoes = [...tresIncorretas, cardAtual.resposta];
+    const opcoesEmbaralhadas = todasAsOpcoes.sort(() => Math.random() - 0.5);
+    setAlternativas(opcoesEmbaralhadas);
+  };
+
+  const nextFlashcard = () => {
+    setNumFlashcard(numFlashcard + 1);
+    setFlashcard(baralhoEmbaralhado[numFlashcard]);
+  };
+
+  //Atualiza toda vez que o flashcard muda
+  useEffect(() => {
+    gerarAlternativasEmbaralhadas(flashcard);
+  }, [flashcard]);
+
   return (
     // Fundo da página
     <div className="min-h-screen bg-[#35362f] flex items-center justify-center p-4 sm:p-8">
-      
+
       {/* Container Principal usando a sua classe CSS */}
       <div className="croupier-game-table croupier-game-table-landscape flex flex-col">
-        
+
         {/* As 6 Caçapas chamando as suas classes */}
         <div className="table-pocket pocket-top-left" />
         <div className="table-pocket pocket-top-right" />
@@ -22,7 +103,7 @@ export default function MesaDeEstudos() {
         {/* --- CABEÇALHO --- */}
         <div className="flex justify-between items-start w-full z-10 mb-4">
           <h1 className="text-white text-lg sm:text-xl font-bold tracking-wide drop-shadow-md">
-            Álgebra linear pt1
+            {flashcard.nomeBaralho}
           </h1>
 
           <div className="flex items-center gap-2 bg-[#693131] rounded-full pl-3 pr-1 py-1 border border-[#522424] shadow-lg cursor-pointer hover:bg-[#7a3939] transition-colors">
@@ -46,7 +127,7 @@ export default function MesaDeEstudos() {
         {/* --- ÁREA CENTRAL (Cartas e Pergunta) --- */}
         {/* Usando flex-col para telas menores e flex-row para telas maiores */}
         <div className="flex-1 flex flex-col lg:flex-row items-center justify-around w-full gap-8 z-10 mb-12">
-          
+
           {/* Esquerda: Mão de Cartas (Placeholders) */}
           <div className="relative w-48 h-64 flex-shrink-0">
             {/* Carta 1 (Fundo) */}
@@ -62,9 +143,9 @@ export default function MesaDeEstudos() {
               <span className="text-red-600 font-bold text-xl leading-none">K ♥</span>
               <div className="flex-1 mt-1 flex items-center justify-center bg-gray-50">
                 <span className="text-gray-400 text-xs font-semibold text-center px-1">
-                    <img
-                        src = "/img/KingWise.jpeg"
-                    />
+                  <img
+                    src="/img/KingWise.jpeg"
+                  />
                 </span>
               </div>
               <span className="text-red-600 font-bold text-xl leading-none self-end rotate-180">K ♥</span>
@@ -84,18 +165,18 @@ export default function MesaDeEstudos() {
             </div>
 
             <h3 className="text-center text-sm font-extrabold mt-6 mb-5 text-gray-900 leading-snug px-2">
-              Qual alternativa apresenta corretamente a formula da área de um circulo?
+              {flashcard.pergunta}
             </h3>
 
             <div className="flex flex-col gap-2 mb-4 px-2">
               {[
-                'A) A = 2πr', 
-                'B) A = b × h', 
-                'C) A = πr²', 
-                'D) A = l²'
+                alternativa[0],
+                alternativa[1],
+                alternativa[2],
+                alternativa[3]
               ].map((alt) => (
-                <button 
-                  key={alt} 
+                <button
+                  key={alt}
                   className="bg-[#e4e4e4] hover:bg-[#d4d4d4] transition-colors text-left px-3 py-1.5 rounded-md font-bold text-xs text-gray-900 shadow-sm"
                 >
                   {alt}
@@ -108,7 +189,9 @@ export default function MesaDeEstudos() {
 
         {/* --- BOTÃO INFERIOR --- */}
         <div className="flex justify-center w-full z-10">
-          <button className="bg-white px-12 py-3 rounded-xl font-extrabold text-black shadow-xl hover:-translate-y-1 transition-transform relative border border-gray-200">
+          <button
+            onClick={() => nextFlashcard()}
+            className="bg-white px-12 py-3 rounded-xl font-extrabold text-black shadow-xl hover:-translate-y-1 transition-transform relative border border-gray-200">
             {/* Detalhes de carta no botão */}
             <div className="absolute top-1 left-2 text-red-600 font-bold flex flex-col items-center leading-none">
               <span className="text-[10px]">A</span>
