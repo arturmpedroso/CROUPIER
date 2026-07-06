@@ -25,12 +25,15 @@ export default function GroupePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeId, setActiveId] = useState<number | null>(null);
 
+    // Estados do Modal (Compartilhado entre Criar/Editar)
     const [showModal, setShowModal] = useState(false);
+    const [editingGroup, setEditingGroup] = useState<GroupData | null>(null); // null = Criando | GroupData = Editando
     const [newGroupName, setNewGroupName] = useState('');
     const [newGroupDesc, setNewGroupDesc] = useState('');
     const [newGroupPrivate, setNewGroupPrivate] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
 
+    // Busca os grupos do usuário
     const fetchGroups = async () => {
         setIsLoading(true);
         try {
@@ -62,6 +65,31 @@ export default function GroupePage() {
         fetchGroups();
     }, []);
 
+    // Abre o modal limpando os campos para um Novo Grupo
+    const handleOpenCreateModal = () => {
+        setEditingGroup(null);
+        setNewGroupName('');
+        setNewGroupDesc('');
+        setNewGroupPrivate(false);
+        setShowModal(true);
+    };
+
+    // Abre o modal preenchendo os campos com os dados antigos para Edição
+    const handleOpenEditModal = (group: GroupData) => {
+        setEditingGroup(group);
+        setNewGroupName(group.name);
+        setNewGroupDesc(group.description || '');
+        setNewGroupPrivate(group.isPrivate);
+        setShowModal(true);
+    };
+
+    // Fecha o modal limpando os estados de edição
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setEditingGroup(null);
+    };
+
+    // Submete o formulário de Criação (POST)
     const handleCreateGroup = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsCreating(true);
@@ -82,16 +110,73 @@ export default function GroupePage() {
             });
 
             if (response.ok) {
-                setNewGroupName('');
-                setNewGroupDesc('');
-                setNewGroupPrivate(false);
-                setShowModal(false);
+                handleCloseModal();
                 fetchGroups();
             }
         } catch (error) {
             console.error("Erro ao criar grupo:", error);
         } finally {
             setIsCreating(false);
+        }
+    };
+
+    // Submete o formulário de Alteração/Atualização (PATCH/PUT)
+    const handleUpdateGroup = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingGroup) return;
+        setIsCreating(true);
+
+        try {
+            const token = localStorage.getItem('@croupier:token');
+            const response = await fetch(`${API_ROUTES.groups}/${editingGroup.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: newGroupName,
+                    description: newGroupDesc,
+                    isPrivate: newGroupPrivate
+                })
+            });
+
+            if (response.ok) {
+                handleCloseModal();
+                fetchGroups();
+            } else {
+                console.error("Erro ao atualizar o grupo na API");
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar grupo:", error);
+        } finally {
+            setIsCreating(false);
+        }
+    };
+
+    // Remove o grupo da mesa de apostas (DELETE)
+    const handleDeleteGroup = async (id: number) => {
+        const confirmed = window.confirm("Tem certeza que deseja recolher as apostas e deletar este grupo? Todos os baralhos dentro dele serão apagados permanentemente.");
+        if (!confirmed) return;
+
+        try {
+            const token = localStorage.getItem('@croupier:token');
+            const response = await fetch(`${API_ROUTES.groups}/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                fetchGroups();
+                if (activeId === id) setActiveId(null); // Reseta a seleção ativa caso o grupo atual suma
+            } else {
+                console.error("Erro ao deletar o grupo na API");
+            }
+        } catch (error) {
+            console.error("Erro ao deletar grupo:", error);
         }
     };
 
@@ -133,7 +218,7 @@ export default function GroupePage() {
 
                     <button
                         type="button"
-                        onClick={() => setShowModal(true)}
+                        onClick={handleOpenCreateModal}
                         className="croupier-btn-accent"
                     >
                         + Novo Grupo
@@ -152,13 +237,30 @@ export default function GroupePage() {
                         ) : (
                             <div className="croupier-grid-list">
                                 {groups.map((grupo) => (
-                                    <GroupBox
-                                        key={grupo.id}
-                                        id={grupo.id}
-                                        title={grupo.name}
-                                        description={grupo.description || "Sem descrição"}
-                                        onSelectGroup={selectElement}
-                                    />
+                                    <div id={`group-${grupo.id}`} key={grupo.id}>
+                                        <GroupBox
+                                            id={grupo.id}
+                                            title={grupo.name}
+                                            description={grupo.description || "Sem descrição"}
+                                            onSelectGroup={selectElement}
+                                        />
+                                        <div className="mt-3 flex gap-2 justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenEditModal(grupo)}
+                                                className="croupier-btn-ghost text-sm"
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteGroup(grupo.id)}
+                                                className="croupier-btn-ghost text-sm"
+                                            >
+                                                Deletar
+                                            </button>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         )}
@@ -166,12 +268,18 @@ export default function GroupePage() {
                 </div>
             </main>
 
+            {/* MODAL COORDENADO PELO ESTADO 'editingGroup' */}
             {showModal && (
                 <div className="croupier-modal-overlay">
                     <div className="croupier-modal">
-                        <h2 className="croupier-modal-title">Criar Novo Grupo</h2>
+                        <h2 className="croupier-modal-title">
+                            {editingGroup ? 'Alterar Mesa do Grupo' : 'Criar Novo Grupo'}
+                        </h2>
 
-                        <form onSubmit={handleCreateGroup} className="croupier-form-stack">
+                        <form 
+                            onSubmit={editingGroup ? handleUpdateGroup : handleCreateGroup} 
+                            className="croupier-form-stack"
+                        >
                             <div>
                                 <label className="croupier-field-label">Nome do Grupo</label>
                                 <input
@@ -210,7 +318,7 @@ export default function GroupePage() {
                             <div className="croupier-form-actions">
                                 <button
                                     type="button"
-                                    onClick={() => setShowModal(false)}
+                                    onClick={handleCloseModal}
                                     className="croupier-btn-ghost"
                                 >
                                     Cancelar
@@ -220,7 +328,7 @@ export default function GroupePage() {
                                     disabled={isCreating}
                                     className="croupier-btn-accent-block"
                                 >
-                                    {isCreating ? 'Criando...' : 'Confirmar'}
+                                    {isCreating ? 'Processando...' : 'Confirmar'}
                                 </button>
                             </div>
                         </form>
