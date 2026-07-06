@@ -54,7 +54,7 @@ export default function MesaDeEstudos() {
   // Numero para contagem
   const [numFlashcard, setNumFlashcard] = useState<number>(0);
   // Flashcard atual
-  const [flashcard, setFlashcard] = useState<Flashcard>(baralhoEmbaralhado[numFlashcard]);
+  const flashcard = baralhoEmbaralhado[numFlashcard];
   const [alternativa, setAlternativas] = useState<string[]>([]);
 
   //Embaralhar as perguntas do flashcard
@@ -76,8 +76,11 @@ export default function MesaDeEstudos() {
   };
 
   const nextFlashcard = () => {
-    setNumFlashcard(numFlashcard + 1);
-    setFlashcard(baralhoEmbaralhado[numFlashcard]);
+    if(numFlashcard < baralhoEmbaralhado.length - 1){
+      setNumFlashcard(numFlashcard + 1);
+    } else {
+      //Fim de baralho, mostrar notas
+    }
   };
 
   //Atualiza toda vez que o flashcard muda
