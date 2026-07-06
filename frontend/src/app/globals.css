@@ -86,13 +86,25 @@
     background-origin: padding-box, border-box, border-box, border-box, border-box;
     background-clip: padding-box, border-box, border-box, border-box, border-box;
 
-    /* Sombra */
-    box-shadow: 
-      inset 0 0 15px rgba(0, 0, 0, 0.7), /* Sombra sobre feltro */
-      0 20px 40px rgba(0, 0, 0, 0.6);   /* Sombra externa da mesa */
-    @apply w-full max-w-md p-10 relative my-12;
-    @apply rounded-[1.5rem]; 
-  }
+  /* Sombra */
+  box-shadow: 
+    inset 0 0 15px rgba(0, 0, 0, 0.7), /* Sombra sobre feltro */
+    0 20px 40px rgba(0, 0, 0, 0.6);   /* Sombra externa da mesa */
+  @apply w-full max-w-md p-10 relative my-12;
+  @apply rounded-[1.5rem]; 
+}
+.croupier-game-table-landscape {
+  max-width: 1024px !important; /* Sobrescreve o max-w-md da classe base */
+  aspect-ratio: 16 / 10;        /* Força a proporção retangular da mesa */
+}
+
+/* As 6 Caçapas da Mesa (Pockets)*/
+.table-pocket {
+  background: radial-gradient(circle, #000000 60%, #1a1a1a 100%);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  /* Posicionamento base */
+  @apply absolute w-8 h-8 rounded-full border-2 border-black/60 z-10;
+}
 
   /* As 6 Caçapas da Mesa (Pockets)*/
   .table-pocket {
@@ -111,7 +123,8 @@
   /* Posições do Meio */
   .pocket-middle-left  { @apply top-1/2 -left-[20px] -translate-y-1/2; }
   .pocket-middle-right { @apply top-1/2 -right-[20px] -translate-y-1/2; }
-  
+  .pocket-middle-down { @apply -top-[13px] left-1/2 -translate-x-1/2; }
+  .pocket-middle-up { @apply -bottom-[13px] left-1/2 -translate-x-1/2; }
   /* Tipografias Dinâmicas */
   .croupier-display-title {
     color: #E6FAFC;
