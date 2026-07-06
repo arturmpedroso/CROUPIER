@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Sidebar, { Element } from '@components/layout/Sidebar';
 import GroupBox from '@/components/peaces/GroupBox';
+import JoinGroupForm from '@/components/forms/JoinGroupByCodeForm';
+import ShareGroupModal from '@/components/modals/ShareCodeGroupModal';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL; // Rota Base
 
@@ -20,6 +22,7 @@ interface GroupData {
     name: string;
     description: string | null;
     isPrivate: boolean;
+    shareCode: string;
 }
 
 export default function GroupePage() {
@@ -34,6 +37,11 @@ export default function GroupePage() {
     const [newGroupDesc, setNewGroupDesc] = useState('');
     const [newGroupPrivate, setNewGroupPrivate] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
+
+    // ESTADOS PARA O MODAL DE COMPARTILHAMENTO =============
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentShareCode, setCurrentShareCode] = useState(''); // Armazena o código do grupo clicado
+
 
     // FUNÇÃO PARA BUSCAR OS GRUPOS NA API ==================
     const fetchGroups = async () => {
@@ -137,8 +145,12 @@ export default function GroupePage() {
             <Sidebar elements={sidebarElements} activeId={activeId} onFindElement={findElement} />
             
             <main className='flex-1 p-8 h-[92vh] flex flex-col relative'>
+                <div className='flex justify-end gap-4 mb-5'>
+                    <h1 className='croupier-subtitle-white text-2xl font-bold text-white'>Entrar em um grupo:</h1>
+                    <JoinGroupForm onJoinSuccess={fetchGroups} />
+                </div>
                 <div className='flex justify-between items-center mb-5'>
-                    <h1 className='croupier-subtitle-white text-2xl font-bold text-white'>Seus Grupos</h1>
+                    <h1 className='croupier-subtitle-white text-4xl font-bold text-white'>Seus Grupos</h1>
                     
                     <button 
                         onClick={() => setShowModal(true)}
@@ -166,6 +178,7 @@ export default function GroupePage() {
                                         title={grupo.name}
                                         description={grupo.description || "Sem descrição"}
                                         onSelectGroup={selectElement}
+                                        onShareClick={() => {setCurrentShareCode(grupo.shareCode); setIsModalOpen(true);}}
                                     />
                                 ))}
                             </div>
@@ -173,7 +186,7 @@ export default function GroupePage() {
                     </div>
                 </div>
             </main>
-
+            <ShareGroupModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} shareCode={currentShareCode} />
             {showModal && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-[#1c1e1a] border border-zinc-800 p-8 rounded-2xl w-full max-w-md shadow-2xl">
