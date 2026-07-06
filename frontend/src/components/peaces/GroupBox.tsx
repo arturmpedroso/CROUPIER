@@ -24,7 +24,7 @@ export default function GroupBox({ id, title, description, onSelectGroup }: Grou
                     <img
                         src="/img/wiese-card.png"
                         alt=""
-                        className="w-full h-full object-contain opacity-70 group-hover:opacity-100 transition-opacity drop-shadow-md"
+                        className="croupier-group-card-image"
                     />
                 </div>
 
