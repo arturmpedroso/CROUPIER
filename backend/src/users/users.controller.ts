@@ -33,7 +33,7 @@ export class UsersController {
   @ApiParam({ name: 'id', description: 'ID do usuário no banco', example: 1 })
   @ApiResponse({ status: 200, description: 'Usuário encontrado.' })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado.' })
-  findOne(@Param('id') id: string) { 
+  findOne(@Param('id', ParseIntPipe) id: number) { 
     return this.usersService.findOne(id);
   }
 
@@ -43,7 +43,7 @@ export class UsersController {
   @ApiParam({ name: 'id', description: 'ID do usuário a ser editado', example: 1 })
   @ApiResponse({ status: 200, description: 'Usuário atualizado com sucesso.' })
   @ApiResponse({ status: 400, description: 'Dados de atualização inválidos.' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
@@ -52,9 +52,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Remove um usuário do sistema' })
   @ApiParam({ name: 'id', description: 'ID do usuário a ser deletado', example: 1 })
   @ApiResponse({ status: 200, description: 'Usuário deletado com sucesso.' })
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
   }
 }
-//  remove(@Param('id') id: string) {
-// update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto)
