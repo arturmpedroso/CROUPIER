@@ -21,6 +21,11 @@ interface GroupData {
     description: string | null;
     isPrivate: boolean;
     shareCode: string;
+    ownerId: number;
+    shares: {        // Adicione isso
+        userId: number;
+        canEdit: boolean;
+    }[];
 }
 
 export default function GroupePage() {
@@ -70,7 +75,15 @@ export default function GroupePage() {
         }
     };
 
+    const [currentUser, setCurrentUser] = useState<any>(null);
+
     useEffect(() => {
+        // Carrega o usuário do localStorage primeiro
+        const userStorage = localStorage.getItem('@croupier:user');
+        if (userStorage) {
+            setCurrentUser(JSON.parse(userStorage));
+        }
+        //busca os grupos
         fetchGroups();
     }, []);
 
@@ -255,6 +268,10 @@ const selectElement = (idElement: number) => {
                                             id={grupo.id}
                                             title={grupo.name}
                                             description={grupo.description || "Sem descrição"}
+                                            canEdit={
+                                                grupo.ownerId === currentUser.id || 
+                                                grupo.shares?.some(s => s.userId === currentUser.id && s.canEdit)
+                                            }                                            
                                             onSelectGroup={selectElement}
                                             onEdit={() => handleOpenEditModal(grupo)}
                                             onDelete={() => handleDeleteGroup(grupo.id)}
