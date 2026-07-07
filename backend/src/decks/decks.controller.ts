@@ -63,4 +63,12 @@ export class DecksController {
   async remove(@Request() req: any, @Param('id', ParseIntPipe) deckId: number) {
     return this.decksService.remove(req.user.sub, deckId);
   }
+  @Get(':id')
+  @ApiOperation({ summary: 'Busca os detalhes de um baralho específico' })
+  @ApiParam({ name: 'id', description: 'ID numérico do baralho', example: 1 })
+  @ApiResponse({ status: 200, description: 'Detalhes do baralho retornados com sucesso.' })
+  @ApiResponse({ status: 404, description: 'Baralho não encontrado.' })
+  async findOne(@Request() req: any, @Param('id', ParseIntPipe) deckId: number) {
+    return this.decksService.findOne(req.user.sub, deckId);
+  }
 }
