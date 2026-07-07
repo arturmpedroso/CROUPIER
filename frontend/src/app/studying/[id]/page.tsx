@@ -1,16 +1,17 @@
 "use client"
 
-import React, { useReducer, useEffect } from 'react';
+import { useReducer, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
-// Interface do Flashcard vinda do seu banco/schema corrigido (sem description)
+// Interface do Flashcard
 interface Flashcard {
   id: number;
-  nomeBaralho: string;
   pergunta: string;
-  resposta: string;
+  resposta: string; 
   quantErros: number;
   quantAcertos: number;
+  nomeBaralho?: string;
 }
 
 // Histórico individual de cada jogada nesta partida
@@ -39,7 +40,8 @@ type StudyAction =
   | { type: 'START_GAME'; cards: Flashcard[] }
   | { type: 'SET_ALTERNATIVES'; alternatives: string[] }
   | { type: 'SELECT_ANSWER'; answer: string }
-  | { type: 'NEXT_CARD' };
+  | { type: 'NEXT_CARD' }
+  | { type: 'END_GAME' };
 
 // O CARTEADOR (Reducer): Controla rigorosamente as transições de estado
 function studySessionReducer(state: StudySessionState, action: StudyAction): StudySessionState {
@@ -97,6 +99,11 @@ function studySessionReducer(state: StudySessionState, action: StudyAction): Stu
           currentAlternatives: [],
         };
       }
+
+      if (action.type === 'END_GAME') {
+        return { ...state, status: 'SUMMARY' };
+      }
+
       return state;
 
     case 'SUMMARY':
@@ -109,6 +116,8 @@ function studySessionReducer(state: StudySessionState, action: StudyAction): Stu
 }
 
 export default function MesaDeEstudos() {
+  const params = useParams();
+  const deckId = params.id;
   const router = useRouter();
 
   // Estado Inicial da Sessão
@@ -122,22 +131,75 @@ export default function MesaDeEstudos() {
     totalAcertosPartida: 0,
     totalErrosPartida: 0,
   });
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
-  // MOCK: Simulando carga inicial vinda do Banco de Dados (Substitua pelo seu fetch real do backend futuramente)
+  const API_ROUTES = {
+      groups: `${API_BASE}/groups`,
+      decks:  `${API_BASE}/decks`,
+      cards:  `${API_BASE}/flashcards`,
+      study:  `${API_BASE}/study`,
+  };
   useEffect(() => {
-    const cartasDoBanco: Flashcard[] = [
-      { id: 1, nomeBaralho: "Geometria", pergunta: "Qual alternativa apresenta a fórmula da área de um círculo?", resposta: "A = πr²", quantErros: 3, quantAcertos: 6 },
-      { id: 2, nomeBaralho: "Geometria", pergunta: "Qual alternativa apresenta a fórmula da área de um quadrado?", resposta: "A = l²", quantErros: 4, quantAcertos: 5 },
-      { id: 3, nomeBaralho: "Geometria", pergunta: "Qual alternativa apresenta a fórmula da hipotenusa?", resposta: "h² = ca² + co²", quantErros: 5, quantAcertos: 4 },
-      { id: 4, nomeBaralho: "Geometria", pergunta: "Qual alternativa apresenta a fórmula da área de um cilindro?", resposta: "A = 2πrh + 2πr²", quantErros: 6, quantAcertos: 3 }
-    ];
+      async function carregarCartasDoBackend() {
+        if (!deckId) return;
 
-    // Embaralha o deck inteiro ao iniciar a partida
-    const deckEmbaralhado = [...cartasDoBanco].sort(() => Math.random() - 0.5);
-    dispatch({ type: 'START_GAME', cards: deckEmbaralhado });
-  }, []);
+        try {
+          // token de acesso
+          const token = localStorage.getItem('token');
+          if (!token) {
+            alert("Sua sessão expirou. Faça login novamente.");
+            router.push('/login');
+            return;
+          }
 
-  // Lógica de Geração de Alternativas: pega as respostas das OUTRAS questões do mesmo baralho!
+          // Chama a rota de Flashcards passando o ID do baralho. 
+          // Nota: Certifique-se de que no NestJS a rota seja algo como GET /flashcards/deck/:deckId
+          const response = await fetch(`${API_ROUTES.cards}/deck/${deckId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Falha ao abrir o cofre de cartas no backend.');
+          }
+
+          const cartasDoBanco = await response.json();
+
+          if (cartasDoBanco.length === 0) {
+            alert("Este baralho ainda não possui cartas para estudar!");
+            router.push('/decks'); // Volta para o lobby
+            return;
+          }
+
+          // Traduz os dados do banco para o padrão que o Frontend entende
+          const cartasFormatadas: Flashcard[] = cartasDoBanco.map((carta: any) => ({
+            id: carta.id,
+            nomeBaralho: carta.deck?.name || "Mesa de Estudos", // Tenta pegar o nome se vier populado do banco
+            pergunta: carta.question || carta.pergunta, 
+            resposta: carta.answer || carta.resposta,
+            quantErros: carta.quantErros || 0,
+            quantAcertos: carta.quantAcertos || 0
+          }));
+
+          // O Croupier embaralha tudo antes de distribuir
+          const deckEmbaralhado = [...cartasFormatadas].sort(() => Math.random() - 0.5);
+          
+          // Inicia a partida disparando o estado
+          dispatch({ type: 'START_GAME', cards: deckEmbaralhado });
+
+        } catch (error) {
+          console.error("Erro na mesa de estudos:", error);
+          alert("Aconteceu um erro de comunicação com o cassino. Tente novamente.");
+        }
+      }
+
+      carregarCartasDoBackend();
+    }, [deckId]);
+
+  // Lógica de Geração de Alternativas: pega as respostas das OUTRAS questões do mesmo baralho
   useEffect(() => {
     if (state.status !== 'PLAYING' || state.cards.length === 0) return;
 
@@ -164,24 +226,49 @@ export default function MesaDeEstudos() {
     dispatch({ type: 'SET_ALTERNATIVES', alternatives: blocoFinalAlternativas });
   }, [state.currentIndex, state.status, state.cards]);
 
-  // Função para persistir os dados coletados de erros e acertos no NestJS
-  const salvarDadosNoBanco = async () => {
+const salvarDadosNoBanco = async () => {
+    // Se o usuário não respondeu nenhuma carta, não há o que salvar
+    if (state.roundResults.length === 0) {
+      router.push('/decks');
+      return; 
+    }
+
     try {
-      console.log("Enviando payload estruturado para o backend...", {
-        results: state.roundResults, 
-        // Exemplo de Payload ideal para o seu NestService processar:
-        // Contém o ID do flashcard e se o usuário acertou ou errou.
-        // O backend usará isso para dar um 'increment' na entidade global do flashcard
-        // E criar/atualizar a linha na tabela de relacionamento do UserFlashcard correspondente.
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("Sua sessão expirou. Faça login novamente.");
+        router.push('/login');
+        return;
+      }
+      
+      // Payload
+      const payload = {
+        deckId: Number(deckId), // Bom enviar para contexto
+        results: state.roundResults // Array no formato: [{ flashcardId: 1, isCorrect: true }, ...]
+      };
+
+      console.log("Enviando resultados para a banca...", payload);
+
+      // Rota de study
+      const response = await fetch(`${API_ROUTES.study}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
       });
 
-      // Exemplo de chamada real do seu axios/fetch:
-      // await api.post('/study-sessions/save', { results: state.roundResults });
+      if (!response.ok) {
+        throw new Error('Falha ao registrar os lucros da rodada na banca.');
+      }
 
-      alert("Sua pontuação foi registrada na banca! Retornando ao menu...");
-      router.push('/decks'); // Substitua pela sua rota real da mesa/baralhos
+      alert("Sua pontuação foi registrada com sucesso! Retornando às mesas...");
+      router.push('/decks'); // Rota do lobby
+
     } catch (error) {
-      console.error("Erro ao salvar dados", error);
+      console.error("Erro ao salvar dados do estudo:", error);
+      alert("Houve um problema ao salvar seu progresso no servidor, mas suas estatísticas locais estão a salvo.");
     }
   };
 
@@ -194,9 +281,7 @@ export default function MesaDeEstudos() {
 
   const sairDaSessao = () => {
     if (window.confirm("Deseja interromper o estudo? Seus acertos atuais serão salvos.")) {
-      dispatch({ type: 'NEXT_CARD' });
-      // Força a transição para salvar o progresso acumulado até o momento
-      salvarDadosNoBanco();
+      dispatch({ type: 'END_GAME' });
     }
   };
 
