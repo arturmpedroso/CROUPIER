@@ -32,6 +32,9 @@ export default function LoginPage() {
       localStorage.setItem('@croupier:token', data.backend_token);
       localStorage.setItem('@croupier:user', JSON.stringify(data.user));
 
+      //atualiza a navbar
+      window.dispatchEvent(new Event('storage'));
+
       router.push(`/${data.user.username}`);
       
     } catch (err: any) {
