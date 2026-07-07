@@ -115,10 +115,49 @@ export default function GroupDecksPage() {
         }
     };
 
+    // Busca os detalhes do grupo para verificar permissões de edição
+    const fetchGroupDetails = async () => {
+        try {
+            const token = localStorage.getItem('@croupier:token');
+            const userStorage = localStorage.getItem('@croupier:user');
+            
+            if (!token || !userStorage) return;
+
+            const currentUser = JSON.parse(userStorage);
+
+            const response = await fetch(`${API_ROUTES.groups}/${groupId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const groupData: GroupDetails = await response.json();
+                
+                // Regra 1: É o dono da mesa?
+                const isOwner = groupData.ownerId === currentUser.id;
+                
+                // Regra 2: É um jogador convidado com passe VIP (canEdit: true)?
+                const userShareInfo = groupData.shares?.find(
+                    (share) => share.userId === currentUser.id
+                );
+                const hasEditPermission = userShareInfo ? userShareInfo.canEdit : false;
+
+                // Atualiza o estado que libera o botão "+ Novo Baralho"
+                setCanEditGroup(isOwner || hasEditPermission);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar detalhes do grupo:", error);
+        }
+    };
+
     useEffect(() => {
         if (groupId) {
             fetchGroupPermissions();
             fetchDecks();
+            fetchGroupDetails();
         }
     }, [groupId]);
 
@@ -279,7 +318,7 @@ export default function GroupDecksPage() {
                 <div className="croupier-page-header mt-2">
                     <h1 className="croupier-subtitle-white text-4xl">Baralhos da Mesa</h1>
 
-                    {/* verificação de permissão de edição */}
+                    {}
                     {canEditGroup && (
                         <button
                             type="button"
