@@ -3,8 +3,8 @@
 # Engenharia de Software
 
 ## About
-This is a FlashCard system.
-Site para estudar através de flashcards (inspirado no anki). Será possível criar flashscards, agrupar em baralhos e coloca-los em grupos para compartilhar suas anotações de estudo.
+Esse é um ambitente para gerenciar flashcards via Web.<br>
+Sará estudar através de flashcards (inspirado no anki). Será possível criar flashscards, agrupar em baralhos e coloca-los em grupos para compartilhar suas anotações de estudo.
 
 ## Team
 > Artur Myskiw Pedroso <br>
@@ -12,12 +12,25 @@ Site para estudar através de flashcards (inspirado no anki). Será possível cr
 > Diogo Kovalek Almeida <br>
 > Pedro Gabriel Figueiroa de Sousa <br>
 
+## VCS
+GitKraken <br>
+GitHub
+
 ## Stack
 ### IDE
-GitKraken <br>
 VSCode <br>
 ### Languages
-ReactJS <br>
+NextJS <br>
 NestJS <br>
 ### SGBD
 MySQL <br>
+
+## rodando o projeto
+### frontend:
+npm run dev <br>
+http://localhost:3000/home
+
+### backend:
+npm run start:dev <br>
+http://localhost:4000/api
+
