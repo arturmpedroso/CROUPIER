@@ -229,7 +229,7 @@ export default function MesaDeEstudos() {
 const salvarDadosNoBanco = async () => {
     // Se o usuário não respondeu nenhuma carta, não há o que salvar
     if (state.roundResults.length === 0) {
-      router.push('/decks');
+      router.push(`/decks/${deckId}`);
       return; 
     }
 
@@ -264,7 +264,7 @@ const salvarDadosNoBanco = async () => {
       }
 
       alert("Sua pontuação foi registrada com sucesso! Retornando às mesas...");
-      router.push('/decks'); // Rota do lobby
+      router.push(`/decks/${deckId}`); // Rota do lobby
 
     } catch (error) {
       console.error("Erro ao salvar dados do estudo:", error);
@@ -465,7 +465,7 @@ const salvarDadosNoBanco = async () => {
             </div>
 
             <button
-              onClick={() => router.push('/decks')}
+              onClick={() => router.push(`/decks/${deckId}`)}
               className="bg-[#97DB4F] hover:bg-[#83c242] transition-colors text-black font-black px-8 py-3 rounded-xl shadow-lg border-b-4 border-[#699c33]"
             >
               Voltar para as Mesas
