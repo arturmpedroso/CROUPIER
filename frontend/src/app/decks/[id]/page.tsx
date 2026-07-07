@@ -185,7 +185,7 @@ export default function DeckCardsPage() {
                     <div className="flex justify-between items-end">
                         <h1 className="croupier-subtitle-white text-3xl font-bold">{deckName}</h1>
                         <button 
-                            onClick={() => router.push(`/study/${deckId}`)}
+                            onClick={() => router.push(`/studying/${deckId}`)}
                             className="croupier-btn-accent flex items-center gap-2 shadow-lg"
                         >
                             Iniciar estudo <span className="bg-white/20 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">▶</span>
