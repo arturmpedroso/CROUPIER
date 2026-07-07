@@ -37,20 +37,15 @@ export default function GroupPermissionsDrawer({
     onPermissionChange
 }: GroupPermissionsDrawerProps) {
     
-    // Se não estiver aberto, não renderiza nada
-    if (!isOpen) return null;
+    
 
     return (
         <>
-            {/* Overlay escuro que fecha o menu ao clicar fora */}
-            <div 
-                className="fixed inset-0 bg-black/60 z-40 transition-opacity" 
-                onClick={onClose} 
-            />
+            {/* Overlay escuro */}
+        <div className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${ isOpen ? "opacity-100" : "opacity-0 pointer-events-none" }`} onClick={onClose} />
 
-            {/* Painel Lateral */}
-            <div className="fixed inset-y-0 right-0 w-96 bg-[#1c1e1a] border-l border-zinc-800 shadow-2xl z-50 p-6 flex flex-col transform transition-transform duration-300 ease-in-out">
-                
+        {/* Painel Lateral */}
+        <div className={`fixed inset-y-0 right-0 w-96 bg-[#1c1e1a] border-l border-zinc-800 shadow-2xl z-50 p-6 flex flex-col transform transition-transform duration-300 ease-in-out ${ isOpen ? "translate-x-0" : "translate-x-full" }`} >
                 {/* Header do Menu */}
                 <div className="flex justify-between items-center mb-8">
                     <h2 className="text-2xl font-bold text-[#E6FAFC]">Configurações da Mesa</h2>
