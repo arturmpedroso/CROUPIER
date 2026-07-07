@@ -1,51 +1,94 @@
-import { Injectable } from '@nestjs/common';
-import { SaveStudyDto } from './dto/save-study.dto';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { SaveStudyDto } from './dto/save-study.dto';
 
 @Injectable()
 export class StudyService {
   constructor(private prisma: PrismaService) {}
 
-  async saveSession(userId: number, data: SaveStudyDto) {
-    // Usamos uma transação para garantir que, se der erro em uma carta, não quebra o banco
-    const operations = data.results.map((result) => {
-      
-      // 1. Prepara a atualização GLOBAL do Flashcard
-      const updateGlobal = this.prisma.flashcard.update({
-        where: { id: result.flashcardId },
-        data: {
-          quantAcertos: result.isCorrect ? { increment: 1 } : undefined,
-          quantErros: !result.isCorrect ? { increment: 1 } : undefined,
-        } as any,
+  private async validateDeckAccess(userId: number, deckId: number) {
+    const deck = await this.prisma.deck.findUnique({
+      where: { id: deckId },
+      include: {
+        group: {
+          include: {
+            shares: {
+              where: { userId },
+            },
+          },
+        },
+      },
+    });
+
+    if (!deck) {
+      throw new NotFoundException('Baralho nao encontrado.');
+    }
+
+    const isOwner = deck.group.ownerId === userId;
+    const isSharedWithUser = deck.group.shares.length > 0;
+
+    if (!isOwner && !isSharedWithUser) {
+      throw new ForbiddenException('Voce nao tem acesso a este baralho.');
+    }
+
+    return deck;
+  }
+
+  async saveSession(userId: number, dto: SaveStudyDto) {
+    await this.validateDeckAccess(userId, dto.deckId);
+
+    if (!dto.results || dto.results.length === 0) {
+      throw new BadRequestException('Nenhum resultado foi enviado.');
+    }
+
+    for (const result of dto.results) {
+      const flashcard = await this.prisma.flashcard.findFirst({
+        where: {
+          id: result.flashcardId,
+          deckId: dto.deckId,
+        },
       });
 
-      // 2. Prepara a atualização INDIVIDUAL (Relacionamento UserFlashcard)
-      // Ajuste os nomes das tabelas e campos conforme o seu Schema exato
-      const updateUserRelation = (this.prisma as any).userFlashcard.upsert({
+      if (!flashcard) {
+        throw new BadRequestException('Carta invalida para este baralho.');
+      }
+
+      await this.prisma.flashcard.update({
+        where: { id: result.flashcardId },
+        data: {
+          totalCorrect: result.isCorrect ? { increment: 1 } : undefined,
+          totalWrong: result.isCorrect ? undefined : { increment: 1 },
+        },
+      });
+
+      await this.prisma.userScore.upsert({
         where: {
-          userId_flashcardId: { // Ajuste se o nome da chave composta for diferente
-            userId: userId,
+          flashcardId_userId: {
             flashcardId: result.flashcardId,
+            userId,
           },
         },
         update: {
-          quantAcertos: result.isCorrect ? { increment: 1 } : undefined,
-          quantErros: !result.isCorrect ? { increment: 1 } : undefined,
+          correct: result.isCorrect ? { increment: 1 } : undefined,
+          wrong: result.isCorrect ? undefined : { increment: 1 },
         },
         create: {
-          userId: userId,
           flashcardId: result.flashcardId,
-          quantAcertos: result.isCorrect ? 1 : 0,
-          quantErros: !result.isCorrect ? 1 : 0,
+          userId,
+          correct: result.isCorrect ? 1 : 0,
+          wrong: result.isCorrect ? 0 : 1,
         },
       });
+    }
 
-      return [updateGlobal, updateUserRelation];
-    });
-
-    // Roda todas as atualizações de uma vez no banco
-    await this.prisma.$transaction(operations.flat());
-
-    return { message: 'Partida salva com sucesso!' };
+    return {
+      success: true,
+      message: 'Resultados salvos com sucesso!',
+    };
   }
 }
