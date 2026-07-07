@@ -82,4 +82,21 @@ export class DecksService {
       where: { id: deckId },
     });
   }
+
+  // Busca os detalhes de um baralho específico
+  async findOne(userId: number, deckId: number) {
+    const deck = await this.prisma.deck.findUnique({ 
+      where: { id: deckId },
+      include: {
+        _count: { select: { flashcards: true } } 
+      }
+    });
+    
+    if (!deck) throw new NotFoundException('Baralho não encontrado.');
+
+    // Verifica se o usuário tem pelo menos acesso de leitura ao grupo da mesa
+    await this.validateGroupAccess(userId, deck.groupId, false);
+
+    return deck;
+  }
 }
