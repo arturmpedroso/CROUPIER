@@ -8,6 +8,7 @@ import DeckBox from '@/components/peaces/DeckBox';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 const API_ROUTES = {
+    groups: `${API_BASE}/groups`,
     decks: `${API_BASE}/decks`,
 };
 
@@ -44,6 +45,48 @@ export default function GroupDecksPage() {
     const [isCreating, setIsCreating] = useState(false);
 
     const [canEditGroup, setCanEditGroup] = useState(false);
+
+    const resolveCanEditGroup = (group: GroupDetails, userId: number) => {
+        if (group.ownerId === userId) return true;
+
+        const share = group.shares?.find((entry) => entry.userId === userId);
+        return share?.canEdit ?? false;
+    };
+
+    const fetchGroupPermissions = async () => {
+        try {
+            const token = localStorage.getItem('@croupier:token');
+            const storedUser = localStorage.getItem('@croupier:user');
+            if (!token || !storedUser) {
+                setCanEditGroup(false);
+                return;
+            }
+
+            const userId = JSON.parse(storedUser).id as number;
+
+            const response = await fetch(API_ROUTES.groups, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                setCanEditGroup(false);
+                return;
+            }
+
+            const groups: GroupDetails[] = await response.json();
+            const group = groups.find((entry) => entry.id === groupId);
+
+            setCanEditGroup(group ? resolveCanEditGroup(group, userId) : false);
+        } catch (error) {
+            console.error("Erro ao verificar permissões do grupo:", error);
+            setCanEditGroup(false);
+        }
+    };
+
     // Busca os baralhos do grupo específico
     const fetchDecks = async () => {
         setIsLoading(true);
@@ -74,6 +117,7 @@ export default function GroupDecksPage() {
 
     useEffect(() => {
         if (groupId) {
+            fetchGroupPermissions();
             fetchDecks();
         }
     }, [groupId]);
