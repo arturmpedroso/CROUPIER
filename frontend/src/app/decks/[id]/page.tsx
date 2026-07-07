@@ -241,37 +241,26 @@ export default function DeckCardsPage() {
 
                         <form onSubmit={handleSaveCard} className="croupier-form-stack">
                             <div>
-                                <label className="croupier-field-label">Título da Carta (Opcional)</label>
-                                <input
-                                    type="text"
-                                    value={cardData.question}
-                                    onChange={(e) => setCardData({...cardData, question: e.target.value})}
-                                    className="croupier-dark-input"
-                                    placeholder="Ex: Artéria Aorta"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="croupier-field-label">Frente (Pergunta)</label>
+                                <label className="croupier-field-label">Pergunta</label>
                                 <textarea
                                     required
                                     rows={3}
                                     value={cardData.question}
-                                    onChange={(e) => setCardData({...cardData, question: e.target.value})}
-                                    className="croupier-dark-input resize-none"
+                                    onChange={(e) => setCardData({ ...cardData, question: e.target.value })}
+                                    className="croupier-dark-textarea"
                                     placeholder="Digite a pergunta da carta..."
                                 />
                             </div>
 
                             <div>
-                                <label className="croupier-field-label">Verso (Resposta)</label>
+                                <label className="croupier-field-label">Resposta</label>
                                 <textarea
                                     required
                                     rows={3}
                                     value={cardData.answer}
-                                    onChange={(e) => setCardData({...cardData, answer: e.target.value})}
-                                    className="croupier-dark-input resize-none"
-                                    placeholder="Digite a resposta oculta..."
+                                    onChange={(e) => setCardData({ ...cardData, answer: e.target.value })}
+                                    className="croupier-dark-textarea"
+                                    placeholder="Digite a resposta da carta..."
                                 />
                             </div>
 
