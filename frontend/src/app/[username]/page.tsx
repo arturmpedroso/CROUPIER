@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
+import ConfirmLogoutModal from '@/components/modals/ConfirmLogoutModal';
 
 interface UserPageProps {
   params: Promise<{ username: string }>;
@@ -10,6 +11,8 @@ interface UserPageProps {
 export default function UserProfilePage({ params }: UserPageProps) {
   const { username } = use(params);
   const router = useRouter();
+
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const [isOwner, setIsOwner] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
@@ -31,6 +34,7 @@ export default function UserProfilePage({ params }: UserPageProps) {
   const handleLogout = () => {
     localStorage.removeItem('@croupier:token');
     localStorage.removeItem('@croupier:user');
+    setIsLogoutModalOpen(false);
     router.push('/login');
   };
 
@@ -54,7 +58,7 @@ export default function UserProfilePage({ params }: UserPageProps) {
                 Sua Mesa (Dono)
               </span>
               <button 
-                onClick={handleLogout}
+                onClick={() => setIsLogoutModalOpen(true)}
                 className="bg-[#A21C0A] hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition"
               >
                 Sair do Jogo
@@ -103,6 +107,7 @@ export default function UserProfilePage({ params }: UserPageProps) {
         </div>
 
       </div>
+      <ConfirmLogoutModal isOpen={isLogoutModalOpen} onClose={() => setIsLogoutModalOpen(false)} onConfirm={() =>{handleLogout(); setIsLogoutModalOpen(false);}} title="Deseja sair?" message="Você será desconectado da sua conta. Tem certeza que deseja continuar?" confirmText="Sair"/>
     </main>
   );
 }
