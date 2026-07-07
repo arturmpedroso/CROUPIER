@@ -131,4 +131,36 @@ export class GroupsController {
   async findOne(@Param('id', ParseIntPipe) groupId: number) {
     return this.groupsService.findOne(groupId);
   }
+
+  @Patch(':id/shares/:targetUserId')
+  @ApiOperation({ summary: 'Atualiza o nível de permissão (leitor/editor) de um membro já pertencente ao grupo' })
+  @ApiParam({ name: 'id', description: 'ID numérico do grupo (Mesa)', example: 1 })
+  @ApiParam({ name: 'targetUserId', description: 'ID numérico do membro que terá a permissão alterada', example: 42 })
+  @ApiResponse({ status: 200, description: 'Permissão atualizada com sucesso.' })
+  @ApiResponse({ status: 400, description: 'Você não pode alterar sua própria permissão.' })
+  @ApiResponse({ status: 403, description: 'Proibido. Apenas o dono do grupo pode fazer isso.' })
+  @ApiResponse({ status: 404, description: 'Usuário não pertence a esta mesa ou grupo não encontrado.' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        canEdit: { type: 'boolean', example: true, description: 'Define se o usuário pode editar/criar baralhos na mesa' }
+      },
+      required: ['canEdit']
+    }
+  })
+  async updateMemberPermission(
+    @Request() req: any,
+    @Param('id', ParseIntPipe) groupId: number,
+    @Param('targetUserId', ParseIntPipe) targetUserId: number,
+    @Body('canEdit') canEdit: boolean
+  ) {
+    // req.user.sub é o ID do usuário logado (dono do token)
+    return this.groupsService.updateMemberPermission(
+      req.user.sub, 
+      groupId, 
+      targetUserId, 
+      canEdit
+    );
+  }
 }

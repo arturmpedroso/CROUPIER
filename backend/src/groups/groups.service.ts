@@ -133,6 +133,10 @@ export class GroupsService {
           select: {
             userId: true,
             canEdit: true, 
+            // ADICIONE ISTO:
+            user: {
+              select: { name: true, username: true }
+            }
           },
         },
       },
@@ -143,5 +147,29 @@ export class GroupsService {
     }
 
     return group;
+  }
+
+  // Atualiza as permissões de um membro existente usando o ID do usuário
+  async updateMemberPermission(ownerId: number, groupId: number, targetUserId: number, canEdit: boolean) {
+    const group = await this.prisma.group.findUnique({ where: { id: groupId } });
+    
+    if (!group) throw new NotFoundException('Grupo não encontrado.');
+    if (group.ownerId !== ownerId) throw new ForbiddenException('Apenas o dono pode alterar as permissões.');
+    if (ownerId === targetUserId) throw new BadRequestException('Não é possível alterar sua própria permissão.');
+
+    try {
+      // Atualiza diretamente a permissão na tabela de relacionamento N:N
+      return await this.prisma.groupShare.update({
+        where: {
+          groupId_userId: { 
+            groupId: groupId, 
+            userId: targetUserId 
+          }
+        },
+        data: { canEdit }
+      });
+    } catch (error) {
+      throw new NotFoundException('Este usuário não é um membro desta mesa.');
+    }
   }
 }

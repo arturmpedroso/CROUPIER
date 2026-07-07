@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Sidebar, { Element } from '@components/layout/Sidebar';
 import DeckBox from '@/components/peaces/DeckBox'; 
+import GroupPermissionsDrawer from '@/components/drawers/GroupPermissionsDrawer'; // Ajuste o caminho se necessário
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
@@ -33,6 +34,10 @@ export default function GroupDecksPage() {
     const params = useParams();
     const router = useRouter();
     const groupId = Number(params.id); // Pega o ID do grupo na URL
+    const [isPermissionsMenuOpen, setIsPermissionsMenuOpen] = useState(false);
+
+    const [groupDetails, setGroupDetails] = useState<GroupDetails | null>(null);
+    const [currentUser, setCurrentUser] = useState<any>(null);
 
     const [decks, setDecks] = useState<DeckData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -124,6 +129,7 @@ export default function GroupDecksPage() {
             if (!token || !userStorage) return;
 
             const currentUser = JSON.parse(userStorage);
+            setCurrentUser(currentUser);
 
             const response = await fetch(`${API_ROUTES.groups}/${groupId}`, {
                 method: 'GET',
@@ -135,7 +141,8 @@ export default function GroupDecksPage() {
 
             if (response.ok) {
                 const groupData: GroupDetails = await response.json();
-                
+                setGroupDetails(groupData);
+
                 // Regra 1: É o dono da mesa?
                 const isOwner = groupData.ownerId === currentUser.id;
                 
@@ -289,6 +296,43 @@ export default function GroupDecksPage() {
         }
     }
 
+    // Altera a privacidade do grupo
+    const handlePrivacyChange = async (isPrivate: boolean) => {
+        try {
+            const token = localStorage.getItem('@croupier:token');
+            await fetch(`${API_ROUTES.groups}/${groupId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isPrivate })
+            });
+            // Opcional: Mostre um toast de sucesso ou atualize o fetchGroupDetails()
+        } catch (error) {
+            console.error("Erro ao alterar privacidade", error);
+        }
+    };
+
+    // Altera a permissão de um membro
+    const handleMemberPermissionChange = async (targetUserId: number, canEdit: boolean) => {
+        // ATENÇÃO: Você precisará criar uma rota no seu backend (NestJS) para isso!
+        // Exemplo: PATCH /groups/:groupId/shares/:targetUserId
+        try {
+            const token = localStorage.getItem('@croupier:token');
+            await fetch(`${API_ROUTES.groups}/${groupId}/shares/${targetUserId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ canEdit })
+            });
+        } catch (error) {
+            console.error("Erro ao alterar permissão", error);
+        }
+    };
+
     // Acessar o baralho (vai para a tela de flashcards futuramente)
     const selectElement = (idElement: number) => {
         setActiveId(idElement);
@@ -306,28 +350,39 @@ export default function GroupDecksPage() {
             <Sidebar elements={sidebarElements} activeId={activeId} onFindElement={findElement} />
 
             <main className="croupier-page-main">
-                <div className='flex flex-col gap-4 mb-5'>
+                <div className='flex justify-between gap-4 mb-5'>
                     <button 
                         onClick={() => router.push('/groups')} 
                         className="text-sm text-[#A9BBBD] hover:text-white self-start transition-colors"
                     >
                         ← Voltar para Mesas (Grupos)
                     </button>
+                    <div className="flex gap-2">
+                            {/* Mostra o botão apenas se o usuário logado for o dono do grupo */}
+                            {groupDetails?.ownerId === currentUser?.id && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsPermissionsMenuOpen(true)}
+                                    className="croupier-btn-ghost px-3 py-2"
+                                >
+                                    ⚙ Permissões
+                                </button>
+                            )}
+                    </div>
                 </div>
-                
                 <div className="croupier-page-header mt-2">
                     <h1 className="croupier-subtitle-white text-4xl">Baralhos da Mesa</h1>
-
-                    {}
-                    {canEditGroup && (
-                        <button
-                            type="button"
-                            onClick={handleOpenCreateModal}
-                            className="croupier-btn-accent"
-                        >
-                            + Novo Baralho
-                        </button>
-                    )}
+                    
+                        {canEditGroup && (
+                            <button
+                                type="button"
+                                onClick={handleOpenCreateModal}
+                                className="croupier-btn-accent"
+                            >
+                                + Novo Baralho
+                            </button>
+                        )}
+                    
                 </div>
 
                 <div className="croupier-content-panel">
@@ -403,6 +458,7 @@ export default function GroupDecksPage() {
                     </div>
                 </div>
             )}
+            <GroupPermissionsDrawer isOpen={isPermissionsMenuOpen} onClose={() => setIsPermissionsMenuOpen(false)} groupDetails={groupDetails} onPrivacyChange={handlePrivacyChange} onPermissionChange={handleMemberPermissionChange}/>
         </div>
     );
 }
