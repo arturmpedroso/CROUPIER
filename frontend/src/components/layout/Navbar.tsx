@@ -62,7 +62,7 @@ export default function Navbar() {
             <>
               <Link href="/groups" className="croupier-btn-nav-ghost">Grupos</Link>
               <Link href={`/${user.username}`} className="croupier-btn-nav-ghost">Perfil</Link>
-              <Link href="/about" className="croupier-btn-nav-ghost">Sobre nós</Link>
+              <Link href="/aboutus" className="croupier-btn-nav-ghost">Sobre nós</Link>
               <button 
                 onClick={() => setIsLogoutModalOpen(true)}
                 className="croupier-btn-logout"
