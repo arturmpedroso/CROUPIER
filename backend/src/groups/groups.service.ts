@@ -123,4 +123,25 @@ export class GroupsService {
       where: { id: groupId },
     });
   }
+
+  // Busca os detalhes de um grupo específico, incluindo as permissões de compartilhamento
+  async findOne(groupId: number) {
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      include: {
+        shares: {
+          select: {
+            userId: true,
+            canEdit: true, 
+          },
+        },
+      },
+    });
+
+    if (!group) {
+      throw new NotFoundException('Mesa não encontrada.');
+    }
+
+    return group;
+  }
 }

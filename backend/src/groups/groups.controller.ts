@@ -121,4 +121,14 @@ export class GroupsController {
     // IMPORTANTE: Passe o ID do usuário para validação de posse no service
     return this.groupsService.delete(req.user.sub, groupId);
   }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Busca os detalhes de um grupo específico (incluindo acessos e permissões)' })
+  @ApiParam({ name: 'id', description: 'ID numérico do grupo', example: 1 })
+  @ApiResponse({ status: 200, description: 'Detalhes do grupo retornados com sucesso.' })
+  @ApiResponse({ status: 401, description: 'Não autorizado.' })
+  @ApiResponse({ status: 404, description: 'Grupo não encontrado.' })
+  async findOne(@Param('id', ParseIntPipe) groupId: number) {
+    return this.groupsService.findOne(groupId);
+  }
 }
