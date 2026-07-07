@@ -283,6 +283,27 @@
     margin: 0;
   }
 
+  @layer components {
+  /* Botão de Logout (Estilo Alerta/Vermelho) */
+  .croupier-btn-logout {
+    @apply px-4 py-2 text-sm font-medium text-red-500 bg-red-900/10 border border-red-900/50 rounded-lg transition-all duration-200;
+  }
+
+  .croupier-btn-logout:hover {
+    @apply bg-red-900/30 border-red-500/50 text-red-400;
+  }
+
+  /* Botão de Login/Ações Principais (Estilo padrão do seu tema) */
+  .croupier-btn-nav-login {
+    @apply px-5 py-2 text-sm font-bold text-[#1c1e1a] bg-[#97DB4F] rounded-lg transition-all duration-200 hover:bg-[#83c043] hover:shadow-[0_0_15px_rgba(151,219,79,0.3)];
+  }
+
+  /* Opcional: Se quiser um botão "Ghost" (apenas texto/borda) para o menu */
+  .croupier-btn-nav-ghost {
+    @apply px-4 py-2 text-sm font-medium text-[#A9BBBD] hover:text-[#E6FAFC] transition-colors;
+  }
+}
+
   /* ==========================================================================
      DASHBOARD / GRUPOS
      ========================================================================== */
