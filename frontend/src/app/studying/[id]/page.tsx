@@ -136,7 +136,7 @@ export default function MesaDeEstudos() {
   const API_ROUTES = {
       groups: `${API_BASE}/groups`,
       decks:  `${API_BASE}/decks`,
-      cards:  `${API_BASE}/flashcards`,
+      cards:  `${API_BASE}/cards`,
       study:  `${API_BASE}/study`,
   };
   useEffect(() => {
@@ -145,7 +145,7 @@ export default function MesaDeEstudos() {
 
         try {
           // token de acesso
-          const token = localStorage.getItem('token');
+          const token = localStorage.getItem('@croupier:token');
           if (!token) {
             alert("Sua sessão expirou. Faça login novamente.");
             router.push('/login');
@@ -234,7 +234,7 @@ const salvarDadosNoBanco = async () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('@croupier:token');
       if (!token) {
         alert("Sua sessão expirou. Faça login novamente.");
         router.push('/login');
