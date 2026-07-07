@@ -188,8 +188,8 @@
 
   /* O componente visual da ficha de Poker/Cassino */
   .team-member .chip-visual {
-    width: 180px;
-    height: 180px;
+    width: 300px;
+    height: 300px;
     border-radius: 50%;
     position: relative;
     background: conic-gradient(
@@ -207,8 +207,8 @@
     @apply flex items-center justify-center;
   }
   .team-member img {
-    width: 80%;
-    height: 80%;
+    width: 50%;
+    height: 50%;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid #000;
